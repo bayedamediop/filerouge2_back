@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -84,6 +86,16 @@ class User implements UserInterface
      * @ORM\ManyToOne(targetEntity=Profils::class, inversedBy="profil")
      */
     private $profils;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Depots::class, mappedBy="user")
+     */
+    private $depots;
+
+    public function __construct()
+    {
+        $this->depots = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -262,6 +274,36 @@ class User implements UserInterface
     public function setProfils(?Profils $profils): self
     {
         $this->profils = $profils;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Depots[]
+     */
+    public function getDepots(): Collection
+    {
+        return $this->depots;
+    }
+
+    public function addDepot(Depots $depot): self
+    {
+        if (!$this->depots->contains($depot)) {
+            $this->depots[] = $depot;
+            $depot->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDepot(Depots $depot): self
+    {
+        if ($this->depots->removeElement($depot)) {
+            // set the owning side to null (unless already changed)
+            if ($depot->getUser() === $this) {
+                $depot->setUser(null);
+            }
+        }
 
         return $this;
     }
