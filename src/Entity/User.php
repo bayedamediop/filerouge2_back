@@ -2,17 +2,25 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Core\Annotation\ApiSubresource;
 use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
  * @ApiResource(
- *
+ *           attributes={
+ *         "security" = "(is_granted('ROLE_ADMIN') or is_granted('ROLE_FORMATEUR'))",
+ *      "security_message" = " OBBB ,vous n'avez pas accès a cette resource"
+ *      },
  *      collectionOperations={
  *          "get"={
  *                  "method" = "GET",
@@ -24,7 +32,14 @@ use Symfony\Component\Security\Core\User\UserInterface;
  *              }
  *      },
  * )
+ * @UniqueEntity ("email",
+ *      message="Ndanidite dougalalle benénn Email bi Amne!!!!!.")
+ *  @UniqueEntity(
+ * fields={"email"},
+ * message={"cet email est déjà utilisé"})
+ *
  */
+
 class User implements UserInterface
 {
     /**
@@ -36,6 +51,9 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=180, unique=true)
+     * @Assert\NotBlank(message="L ' email doit etre unique")
+     * * @Assert\Email(message = "The email '{{ value }}' is not a valid email.")
+     * @Groups ({"user:read"})
      */
     private $email;
 
@@ -49,21 +67,25 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=255)
+     *  @Groups ({"user:read"})
      */
     private $nom;
 
     /**
      * @ORM\Column(type="string", length=255)
+     *  @Groups ({"user:read"})
      */
     private $prenom;
 
     /**
      * @ORM\Column(type="string", length=255)
+     *  @Groups ({"user:read"})
      */
     private $phone;
 
     /**
      * @ORM\Column(type="string", length=255)
+     *  @Groups ({"user:read"})
      */
     private $cni;
 
@@ -74,6 +96,7 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups ({"user:read"})
      */
     private $adresse;
 
@@ -84,6 +107,8 @@ class User implements UserInterface
 
     /**
      * @ORM\ManyToOne(targetEntity=Profils::class, inversedBy="profil")
+     * @ApiSubresource()
+     * @Groups ({"user:read"})
      */
     private $profils;
 
