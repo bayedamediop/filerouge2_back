@@ -31,6 +31,23 @@ use Symfony\Component\Validator\Constraints as Assert;
  *                  "route_name"="addUser",
  *              }
  *      },
+ *     itemOperations={
+ *           "get_user_by_id"={
+ *                   "method"="GET",
+ *                    "path" = "/admin/users/{id}",
+ *                    "normalization_context"={"groups"={"user:read"}},
+ *      },
+ *            "delete"={
+ *                      "method"="DELETE",
+ *                    "path" = "/admin/users/{id}",
+ *              },
+ *      "putUserId":{
+ *           "method":"put",
+ *          "path":"/admin/users/{id}",
+ *              "access_control"="(is_granted('ROLE_ADMIN') )",
+ *              "deserialize"= false,
+ *          }
+ * },
  * )
  * @UniqueEntity ("email",
  *      message="Ndanidite dougalalle benénn Email bi Amne!!!!!.")
@@ -46,6 +63,7 @@ class User implements UserInterface
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     * @Groups ({"depot:write"})
      */
     private $id;
 
@@ -53,7 +71,7 @@ class User implements UserInterface
      * @ORM\Column(type="string", length=180, unique=true)
      * @Assert\NotBlank(message="L ' email doit etre unique")
      * * @Assert\Email(message = "The email '{{ value }}' is not a valid email.")
-     * @Groups ({"user:read"})
+     * @Groups ({"user:read","depot:write"})
      */
     private $email;
 
@@ -67,25 +85,25 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=255)
-     *  @Groups ({"user:read"})
+     * @Groups ({"user:read","depot:read"})
      */
     private $nom;
 
     /**
      * @ORM\Column(type="string", length=255)
-     *  @Groups ({"user:read"})
+     * @Groups ({"user:read","depot:read"})
      */
     private $prenom;
 
     /**
      * @ORM\Column(type="string", length=255)
-     *  @Groups ({"user:read"})
+     * @Groups ({"user:read","depot:read"})
      */
     private $phone;
 
     /**
      * @ORM\Column(type="string", length=255)
-     *  @Groups ({"user:read"})
+     *  @Groups ({"user:read","depot:read"})
      */
     private $cni;
 
@@ -96,7 +114,7 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups ({"user:read"})
+     * @Groups ({"user:read","depot:read"})
      */
     private $adresse;
 
@@ -113,13 +131,25 @@ class User implements UserInterface
     private $profils;
 
     /**
-     * @ORM\OneToMany(targetEntity=Depots::class, mappedBy="user")
+     * @ORM\OneToMany(targetEntity=Depots::class, mappedBy="user",cascade={"persist"})
      */
     private $depots;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Agences::class, mappedBy="user")
+     */
+    private $agences;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Depots::class, mappedBy="users")
+     */
+    private $user;
 
     public function __construct()
     {
         $this->depots = new ArrayCollection();
+        $this->agences = new ArrayCollection();
+        $this->user = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -327,6 +357,66 @@ class User implements UserInterface
             // set the owning side to null (unless already changed)
             if ($depot->getUser() === $this) {
                 $depot->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Agences[]
+     */
+    public function getAgences(): Collection
+    {
+        return $this->agences;
+    }
+
+    public function addAgence(Agences $agence): self
+    {
+        if (!$this->agences->contains($agence)) {
+            $this->agences[] = $agence;
+            $agence->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAgence(Agences $agence): self
+    {
+        if ($this->agences->removeElement($agence)) {
+            // set the owning side to null (unless already changed)
+            if ($agence->getUser() === $this) {
+                $agence->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Depots[]
+     */
+    public function getUser(): Collection
+    {
+        return $this->user;
+    }
+
+    public function addUser(Depots $user): self
+    {
+        if (!$this->user->contains($user)) {
+            $this->user[] = $user;
+            $user->setUsers($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUser(Depots $user): self
+    {
+        if ($this->user->removeElement($user)) {
+            // set the owning side to null (unless already changed)
+            if ($user->getUsers() === $this) {
+                $user->setUsers(null);
             }
         }
 

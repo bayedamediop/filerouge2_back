@@ -60,19 +60,7 @@ class UserController extends AbstractController
     { //all data
         $user = $request->request->all() ;
         // dd($user);
-        //get profil
-//        $profil = $user["profils"] ;
-//
-//        if($profil == "ADMIN") {
-//            $users = $this->serialize->denormalize($user, "App\Entity\User");
-//        } elseif ($profil =="APPRENANT") {
-//            $users = $this->serialize->denormalize($user, "App\Entity\Apprenant");
-//            $users->setAttente('1');
-//        } elseif ($profil =="FORMATEUR") {
-//            $users = $this->serialize->denormalize($user, "App\Entity\Formateur");
-//        }elseif ($profil =="CM") {
-//            $users = $this->serialize->denormalize($user, "App\Entity\Cm");
-//        }
+
         //recupération de l'image
         $photo = $request->files->get("avatar");
         //specify entity
@@ -89,8 +77,6 @@ class UserController extends AbstractController
         $users->setAvatar($photoBlob);
 
         $users->setPassword($this->encoder->encodePassword($users,$password));
-        //$users->setIsdelate("1");
-
 
         //$users->setProfile($this->profileRepository->findOneBy(['libelle'=>$profil])) ;
 
