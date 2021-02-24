@@ -145,11 +145,17 @@ class User implements UserInterface
      */
     private $user;
 
+    /**
+     * @ORM\ManyToMany(targetEntity=Transactions::class, mappedBy="user",cascade={"persist"})
+     */
+    private $transactions;
+
     public function __construct()
     {
         $this->depots = new ArrayCollection();
         $this->agences = new ArrayCollection();
         $this->user = new ArrayCollection();
+        $this->transactions = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -422,4 +428,32 @@ class User implements UserInterface
 
         return $this;
     }
+
+    /**
+     * @return Collection|Transactions[]
+     */
+    public function getTransactions(): Collection
+    {
+        return $this->transactions;
+    }
+
+    public function addTransaction(Transactions $transaction): self
+    {
+        if (!$this->transactions->contains($transaction)) {
+            $this->transactions[] = $transaction;
+            $transaction->addUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTransaction(Transactions $transaction): self
+    {
+        if ($this->transactions->removeElement($transaction)) {
+            $transaction->removeUser($this);
+        }
+
+        return $this;
+    }
+
 }
