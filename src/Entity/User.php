@@ -135,10 +135,6 @@ class User implements UserInterface
      */
     private $depots;
 
-    /**
-     * @ORM\OneToMany(targetEntity=Agences::class, mappedBy="user")
-     */
-    private $agences;
 
     /**
      * @ORM\OneToMany(targetEntity=Depots::class, mappedBy="users")
@@ -150,12 +146,19 @@ class User implements UserInterface
      */
     private $transactions;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Agences::class, mappedBy="user",cascade={"persist"})
+     */
+    private $agences;
+
+
+
     public function __construct()
     {
         $this->depots = new ArrayCollection();
-        $this->agences = new ArrayCollection();
         $this->user = new ArrayCollection();
         $this->transactions = new ArrayCollection();
+        $this->agences = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -455,5 +458,6 @@ class User implements UserInterface
 
         return $this;
     }
+
 
 }
