@@ -36,6 +36,20 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         $this->_em->flush();
     }
 
+//permet de verifier si le referentiel est associé a un groupe de competences
+    public function ifuserAndCompteInDepot($idu,$idc)
+    {
+        return $this->createQueryBuilder('r')
+            ->innerJoin('r.depots', 'depot')
+            ->andWhere('depot.id = :val')
+            ->andWhere('r.id = :id')
+            ->setParameter('id', $idu)
+            ->setParameter('val', $idc)
+            ->getQuery()
+            ->getOneOrNullResult()
+            ;
+    }
+
     // /**
     //  * @return User[] Returns an array of User objects
     //  */

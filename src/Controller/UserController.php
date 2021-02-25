@@ -5,6 +5,8 @@ use ApiPlatform\Core\Filter\Validator\ValidatorInterface;
 use App\Entity\Profils;
 use App\Entity\User;
 use App\Repository\ProfilsRepository;
+use App\Repository\UserRepository;
+use App\Service\UserService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -26,21 +28,14 @@ class UserController extends AbstractController
     private $encode;
     private $attente;
     private $validator;
-    /**
-     * @var ProfilsRepository
-     */
-    private $profileRepository;
 
     public function __construct(SerializerInterface $serialize,Security $security,
-                                ProfilsRepository  $profileRepository,UserPasswordEncoderInterface $encoder,EntityManagerInterface $manager)
+                               UserPasswordEncoderInterface $encoder,EntityManagerInterface $manager)
     {
         $this->security = $security;
         $this->serialize= $serialize;
-        $this->profileRepository = $profileRepository ;
         $this->encoder =$encoder;
         $this->manager =$manager;
-
-
 
     }
     /**
@@ -92,6 +87,40 @@ class UserController extends AbstractController
         return $this->json("success",201);
 
     }
+
+/**
+ * @Route(
+ *     "api/admin/users/{id}",
+ *      name="putUserId",
+ *     methods={"PUT"},
+ *     defaults={
+ *      "_api_resource_class"=User::class,
+ *      "_api_item_operation_name"="putUserId"
+ *     }
+ *     )
+ */
+public function putUserId($id,UserService $service, Request $request,
+                          EntityManagerInterface $manager,SerializerInterface $serializer,UserRepository $u)
+{
+    $userForm= $service->PutUser($request, 'avatar');
+    //dd($userForm);
+    //$userUpdate = $service->PutUser($request, 'avatar');
+    // dd($userUpdate);
+    $user = $u->find($id);
+    foreach ($userForm as $key => $value) {
+        if($key === 'profil'){
+            $value = $serializer->denormalize($value, Profils::class);
+        }
+        $setter = 'set'.ucfirst(trim(strtolower($key)));
+        //dd($setter);
+        if(method_exists(User::class, $setter)) {
+            $user->$setter($value);
+            //dd($user);
+        }
+    }
+    $manager->flush();
+    return new JsonResponse("success",200,[],true);
+}
 
     /**
      * @Route("/login", name="app_login")

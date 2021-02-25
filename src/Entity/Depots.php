@@ -34,7 +34,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *         itemOperations={
  *          "les_depot_un_user_d_un_compte"={
  *          "method" = "GET",
- *          "path"  = "/admin/depots/{id}/user",
+ *          "path"  = "/admin/depots/user/{id}/compte",
  *           "normalization_context"={"groups"={"depot:read"}}
  *      }
  *      },
@@ -46,7 +46,7 @@ class Depots
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
-     * @Groups ({"depot:read"})
+     * @Groups ({"depot:read","user:read"})
      */
     private $id;
 
@@ -75,6 +75,7 @@ class Depots
 
     /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="user")
+     * @Groups ({"depot:read"})
      */
     private $users;
 

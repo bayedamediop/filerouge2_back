@@ -37,6 +37,12 @@ use Symfony\Component\Validator\Constraints as Assert;
  *                    "path" = "/admin/users/{id}",
  *                    "normalization_context"={"groups"={"user:read"}},
  *      },
+ *      "putUserId":{
+ *           "method":"put",
+ *          "path":"/admin/users/{id}",
+ *              "access_control"="(is_granted('ROLE_ADMIN') )",
+ *              "deserialize"= false,
+ *          },
  *            "delete"={
  *                      "method"="DELETE",
  *                    "path" = "/admin/users/{id}",
@@ -46,7 +52,12 @@ use Symfony\Component\Validator\Constraints as Assert;
  *          "path":"/admin/users/{id}",
  *              "access_control"="(is_granted('ROLE_ADMIN') )",
  *              "deserialize"= false,
- *          }
+ *          },
+ *     "promoApprenantsAttantes"={
+ *                  "method" = "GET",
+                    "path" = "/admin/users/{idu}/depots",
+ *                  "normalization_context"={"groups"={"user:read"}}
+ *                  },
  * },
  * )
  * @UniqueEntity ("email",
@@ -132,6 +143,8 @@ class User implements UserInterface
 
     /**
      * @ORM\OneToMany(targetEntity=Depots::class, mappedBy="user",cascade={"persist"})
+     * @ApiSubresource()
+     * @Groups ({"user:read"})
      */
     private $depots;
 

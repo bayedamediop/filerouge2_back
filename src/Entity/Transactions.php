@@ -137,7 +137,7 @@ class Transactions
         return $this;
     }
 
-    public function getDateRetrait(): ?string
+    public function getDateRetrait(): ?\DateTimeInterface
     {
         return $this->dateRetrait;
     }
