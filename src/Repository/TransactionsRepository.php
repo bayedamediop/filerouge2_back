@@ -36,7 +36,6 @@ class TransactionsRepository extends ServiceEntityRepository
     }
     */
 
-
     public function findTransactionBycode($value): ?Transactions
     {
         return $this->createQueryBuilder('t')
