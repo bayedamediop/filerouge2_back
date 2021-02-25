@@ -142,7 +142,7 @@ class Transactions
         return $this->dateRetrait;
     }
 
-    public function setDateRetrait(string $dateRetrait): self
+    public function setDateRetrait(\DateTimeInterface $dateRetrait): self
     {
         $this->dateRetrait = $dateRetrait;
 

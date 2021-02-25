@@ -33,7 +33,6 @@ class TransactionController extends AbstractController
 
     public function Code($code)
     {
-
         $retrait = $this->getDoctrine()->getRepository(Transactions::class);
         $rett = $retrait->findAll();
         //    var_dump($all); die;
@@ -130,18 +129,18 @@ class TransactionController extends AbstractController
                     // dd($competencerepo->findBy(['id'=>(int)$json['competence']]));
                     $cmop = $transaction['user'];
                     //dd($cmop);
-                    for ($i = 0; $i < count($cmop); $i++) {
-                        if ($userRepository->find((int)$cmop[$i])) {
-                            $objet = ($userRepository->find((int)$cmop[$i]));
+                    //for ($i = 0; $i < count($cmop); $i++) {
+                        if ($userRepository->find((int)$cmop)) {
+                            $objet = ($userRepository->find((int)$cmop));
                             $objet->addTransaction($newtransac);
 
                         }
-                    }
+                    //}
                     $entityManager->persist($objet);
                 }
                 //dd($transaction['client']->nomComplet);
                 for ($i = 0; $i < count($transaction['client']); $i++) {
-                    //dd($transaction['client'][$i]['nomComplet']);
+                    //ccreation du client a envoie
                     $newclient = new Clirnts();
                     $newclient->setNomComplet($transaction['client'][$i]['nomComplet']);
                     $newclient->setPhone($transaction['client'][$i]['phone']);
@@ -186,7 +185,6 @@ class TransactionController extends AbstractController
                 return $val->getFrais();
             }
         }
-
     }
 
 
@@ -194,40 +192,60 @@ class TransactionController extends AbstractController
 
     /**
      * @Route (
-     *     name="recupereTransaction",
-     *      path="/api/admin/transactions/{id}",
+     *     name="transaction",
+     *      path="/api/admin/transactions/{codet}",
      *      methods={"PUT"},
      *     defaults={
-     *            "__controller"="App\Controller\TransactionController::recupereTransaction",
+     *           "__controller"="App\Controller\TransactionController::transaction",
      *           "__api_ressource_class"=Transactions::class,
      *           "__api_collection_operation_name"="recupere_Transaction"
      *         }
      * )
      */
-    public function recupereTransaction(Request $request, $code, TransactionsRepository $transactionsRepository,
-                                        ComptesRepository $comptesRepository, SerializerInterface $serializer)
+    public function transaction(Request $request,$codet,ComptesRepository $comptesRepository, SerializerInterface $serializer)
     {
-        $transation = $this->transactionsRepository->findTransactionBycode($code);
-        dd($transation);
+        //dd('oki');
+
+        $transation = $this->transactionsRepository->findTransactionBycode($codet);
+       //dd($transation);
+
         if ($transation) {
             if ($transation->getDateRetrait() !== null) {
                 return $this->json("Cette Transaction est déja retire ");
             } else {
                 $transation->setDateRetrait(new \DateTime());
-                if ($transation['compte']) {
-                    $cmop = $transation['compte'];
-                    for ($i = 0; $i < count($cmop); $i++) {
-                        if ($comptesRepository->find((int)$cmop[$i])) {
-                            $objet = ($comptesRepository->find((int)$cmop[$i]));
+                $this->manage->persist($transation);
+                //dd($transation);
+                $doonne = json_decode($request->getContent());
+                //dd($doonne);
+                if ($doonne->compte) {
+                    //dd($doonne->compte);
+                    //for ($i = 0; $i < count($cmop); $i++) {
+                        if ($comptesRepository->find((int)$doonne->compte)) {
+                            $objet = ($comptesRepository->find((int)$doonne->compte));
                             //dd($objet->getSolde());
-                            $objet->setSolde($objet->getSolde() + $transation['montantDept']);
+                            $objet->setSolde($objet->getSolde() + $transation->getMontant());
                             //dd($objet);
                             $transation->setCopmte($objet);
                         }
-                    }
+                   // }
                     $manage = $this->getDoctrine()->getManager();
                     $manage->persist($transation);
                 }
+                $doonneClient = json_decode($request->getContent(),'json');
+
+                if ($doonneClient['client']) {
+                    for ($i = 0; $i < count($doonneClient['client']); $i++) {
+                        //ccreation du client a envoie
+                        $newclient = new Clirnts();
+                        $newclient->setNomComplet($doonneClient['client'][$i]['nomComplet']);
+                        $newclient->setPhone($doonneClient['client'][$i]['phone']);
+                        $newclient->setCni($doonneClient['client'][$i]['cni']);
+                        $transation->addClient($newclient);
+                        $manage->persist($newclient);
+                    }
+                }
+                $this->manage->flush();
             }
         } else {
             return $this->json("Cette code de Transaction n'est pas bonne!!! ");
