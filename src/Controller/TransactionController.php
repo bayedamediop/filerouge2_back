@@ -132,11 +132,11 @@ class TransactionController extends AbstractController
                     //for ($i = 0; $i < count($cmop); $i++) {
                         if ($userRepository->find((int)$cmop)) {
                             $objet = ($userRepository->find((int)$cmop));
-                            $objet->addTransaction($newtransac);
-
+                            $objet->addUser($newtransac);
+                            $entityManager->persist($objet);
                         }
                     //}
-                    $entityManager->persist($objet);
+
                 }
                 //dd($transaction['client']->nomComplet);
                 for ($i = 0; $i < count($transaction['client']); $i++) {

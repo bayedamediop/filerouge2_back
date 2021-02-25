@@ -35,14 +35,9 @@ use Symfony\Component\Validator\Constraints as Assert;
  *           "get_user_by_id"={
  *                   "method"="GET",
  *                    "path" = "/admin/users/{id}",
- *                    "normalization_context"={"groups"={"user:read"}},
+ *                       "normalization_context"={"groups"={"userdepot:read"}}
+ *
  *      },
- *      "putUserId":{
- *           "method":"put",
- *          "path":"/admin/users/{id}",
- *              "access_control"="(is_granted('ROLE_ADMIN') )",
- *              "deserialize"= false,
- *          },
  *            "delete"={
  *                      "method"="DELETE",
  *                    "path" = "/admin/users/{id}",
@@ -53,11 +48,6 @@ use Symfony\Component\Validator\Constraints as Assert;
  *              "access_control"="(is_granted('ROLE_ADMIN') )",
  *              "deserialize"= false,
  *          },
- *     "promoApprenantsAttantes"={
- *                  "method" = "GET",
-                    "path" = "/admin/users/{idu}/depots",
- *                  "normalization_context"={"groups"={"user:read"}}
- *                  },
  * },
  * )
  * @UniqueEntity ("email",
@@ -75,6 +65,7 @@ class User implements UserInterface
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      * @Groups ({"depot:write"})
+     * @Groups ({"userdepot:read"})
      */
     private $id;
 
@@ -83,6 +74,7 @@ class User implements UserInterface
      * @Assert\NotBlank(message="L ' email doit etre unique")
      * * @Assert\Email(message = "The email '{{ value }}' is not a valid email.")
      * @Groups ({"user:read","depot:write"})
+     * @Groups ({"userdepot:read"})
      */
     private $email;
 
@@ -96,25 +88,25 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups ({"user:read","depot:read"})
+     * @Groups ({"userdepot:read","getOndepotUserCompt:read"})
      */
     private $nom;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups ({"user:read","depot:read"})
+     * @Groups ({"userdepot:read","getOndepotUserCompt:read"})
      */
     private $prenom;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups ({"user:read","depot:read"})
+     * @Groups ({"userdepot:read","getOndepotUserCompt:read"})
      */
     private $phone;
 
     /**
      * @ORM\Column(type="string", length=255)
-     *  @Groups ({"user:read","depot:read"})
+     * @Groups ({"userdepot:read"})
      */
     private $cni;
 
@@ -125,7 +117,8 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups ({"user:read","depot:read"})
+     * @Groups ({"userdepot:read","getOndepotUserCompt:read"})
+
      */
     private $adresse;
 
@@ -137,14 +130,12 @@ class User implements UserInterface
     /**
      * @ORM\ManyToOne(targetEntity=Profils::class, inversedBy="profil")
      * @ApiSubresource()
-     * @Groups ({"user:read"})
      */
     private $profils;
 
     /**
-     * @ORM\OneToMany(targetEntity=Depots::class, mappedBy="user",cascade={"persist"})
-     * @ApiSubresource()
-     * @Groups ({"user:read"})
+     * @ORM\OneToMany(targetEntity=Depots::class, mappedBy="users",cascade={"persist"})
+     * @Groups ({"userdepot:read"})
      */
     private $depots;
 
@@ -161,6 +152,7 @@ class User implements UserInterface
 
     /**
      * @ORM\OneToMany(targetEntity=Agences::class, mappedBy="user",cascade={"persist"})
+     * @Groups ({"userdepot:read"})
      */
     private $agences;
 

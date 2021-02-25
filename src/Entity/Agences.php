@@ -5,6 +5,7 @@ namespace App\Entity;
 use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\AgencesRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=AgencesRepository::class)
@@ -36,11 +37,13 @@ class Agences
 
     /**
      * @ORM\Column(type="integer")
+     * @Groups ({"getOndepotUserCompt:read"})
      */
     private $numAgence;
 
     /**
      * @ORM\Column(type="string", length=255)
+     *  @Groups ({"getOndepotUserCompt:read"})
      */
     private $adresseAgence;
 

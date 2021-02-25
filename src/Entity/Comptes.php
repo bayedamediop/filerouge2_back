@@ -13,7 +13,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  * @ORM\Entity(repositoryClass=ComptesRepository::class)
  * @ApiResource(
  *           attributes={
- *         "security" = "(is_granted('ROLE_ADMIN') or is_granted('ROLE_FORMATEUR'))",
+ *         "security" = "(is_granted('ROLE_ADMIN') )",
  *      "security_message" = " OBBB ,vous n'avez pas accès a cette resource"
  *      },
  *      collectionOperations={
@@ -42,9 +42,8 @@ class Comptes
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups ({"depot:read"})
-     */
-    private $numCompte;
+     * @Groups ({"depot:read","comptes:read","userdepot:read","getOndepotUserCompt:read"})
+    private $numCompte = "rand(2, 10000000)";
 
     /**
      * @ORM\Column(type="float")
@@ -63,6 +62,7 @@ class Comptes
 
     /**
      * @ORM\OneToMany(targetEntity=Agences::class, mappedBy="compte")
+     *  @Groups ({"getOndepotUserCompt:read"})
      */
     private $agences;
 

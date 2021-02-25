@@ -7,6 +7,7 @@ use App\Entity\Depots;
 use ApiPlatform\Core\Filter\Validator\ValidatorInterface;
 use App\Entity\Transactions;
 use App\Repository\ComptesRepository;
+use App\Repository\DepotsRepository;
 use App\Repository\TransactionsRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -86,4 +87,26 @@ class DepotController extends AbstractController
         return $this->json("success", 201);
     }
 
+
+    /**
+     * @Route (
+     *     name="getuserandcopmt",
+     *      path="/api/admin/depot/{idd}/user/{idu}",
+     *      methods={"GET"},
+     *     defaults={
+     *           "__controller"="App\Controller\DepotsController::getuserandcopmt",
+     *           "__api_ressource_class"=Depots::class,
+     *           "__api_collection_operation_name"="get_userandcopmt"
+     *         }
+     * )
+     */
+    public function getuserandcopmt(DepotsRepository $depotsRepository,$idd,$idu)
+    {
+        $test = $depotsRepository->ifuserAndCompteInDepot($idd,$idu);
+        if ($test) {
+            return $this->json($test,200,[],["groups"=>"usercompte:read"]);
+        }else{
+            return $this->json("User ou Comtpt competence inexistant");
+        }
+    }
 }

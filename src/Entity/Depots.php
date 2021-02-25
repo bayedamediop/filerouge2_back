@@ -26,17 +26,18 @@ use Symfony\Component\Validator\Constraints as Assert;
  *                  "normalization_context"={"groups"={"depot:read"}}
  *
  *      },
- *     "post"={
- *                  "method" = "POST",
- *                  "path" = "/admin/comptes",
- *      },
  *      },
  *         itemOperations={
- *          "les_depot_un_user_d_un_compte"={
- *          "method" = "GET",
- *          "path"  = "/admin/depots/user/{id}/compte",
- *           "normalization_context"={"groups"={"depot:read"}}
- *      }
+ *
+ *             "get_userandcopmt"={
+ *                  "route_name"="getuserandcopmt"
+ *              },
+ *     "get"={
+ *                  "method" = "GET",
+ *                  "path" = "/admin/depots/{id}",
+ *                  "normalization_context"={"groups"={"getOndepotUserCompt:read"}}
+ *
+ *      },
  *      },
  *     )
  */
@@ -46,19 +47,19 @@ class Depots
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
-     * @Groups ({"depot:read","user:read"})
+     * @Groups ({"userdepot:read","getOndepotUserCompt:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="float")
-     * @Groups ({"depot:read"})
+     * @Groups ({"userdepot:read","getOndepotUserCompt:read"})
      */
     private $montantDepot;
 
     /**
      * @ORM\ManyToOne(targetEntity=Comptes::class, inversedBy="depots",cascade={"persist"})
-     * @Groups ({"depot:read"})
+     * @Groups ({"userdepot:read","getOndepotUserCompt:read"})
      *
      */
     private $compte;
@@ -68,14 +69,13 @@ class Depots
      * @ORM\Column(type="datetime")
      * @Assert\DateTime
      * @var string A "Y-m-d H:i:s" formatted value
-     * @Groups ({"depot:write"})
-     * @Groups ({"depot:read"})
+     * @Groups ({"userdepot:read","getOndepotUserCompt:read"})
      */
     private $dateDepot;
 
     /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="user")
-     * @Groups ({"depot:read"})
+     * @Groups ({"getOndepotUserCompt:read"})
      */
     private $users;
 

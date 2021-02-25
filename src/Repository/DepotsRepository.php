@@ -19,6 +19,21 @@ class DepotsRepository extends ServiceEntityRepository
         parent::__construct($registry, Depots::class);
     }
 
+///permet de recuperer les chats d'un user
+    public function ifuserAndCompteInDepot($idd)
+    {
+        return $this->createQueryBuilder('u')
+            ->innerJoin('u.depots', 'de')
+            ->andWhere('de.id = :val')
+            ->andWhere('u.user = :idUser')
+            ->setParameter('idUser', $idd)
+            ->setParameter('val', $idu)
+            ->getQuery()
+            ->getOneOrNullResult()
+            ;
+    }
+    //permet de recuperer les chats d'un user
+
     // /**
     //  * @return Depots[] Returns an array of Depots objects
     //  */
