@@ -17,6 +17,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use function Symfony\Component\String\s;
 
 class TransactionController extends AbstractController
 {
@@ -63,10 +64,10 @@ class TransactionController extends AbstractController
         $transaction = json_decode($request->getContent(), 'json');
         //dd($transaction);
         //dd($transaction['nomComplet']);
-        $gneneCode = rand(2, 100);
+        $code = rand(4,1000000000);
         // var_dump($gneneCode);die();
         $date = new \DateTime('now');
-        $code = $gneneCode . date_format($date, 'YmdHi');
+        //$code = $gneneCode . date_format($date, 'YmdHi');
         //dd($code);
         $users = $this->getUser();
 
@@ -83,93 +84,98 @@ class TransactionController extends AbstractController
         //dd($transaction);
         $slode = $this->getDoctrine()->getRepository(Comptes::class);
         $all = $slode->findAll();
-//
-        foreach ($all as $val) {
-            if ($val->getSolde() <= $transaction['montant']) {
-                $data = [
-                    'status' => 500,
-                    'message' => ('L\'etat de votre Compte ne vous permet d\'effectue cette transaction votre solde est: ' .
-                        $val->getSolde() . ' et le montant de la transaction est ' .
-                        $transaction['montant'] . ' Desolé !!!!')
-                ];
-            } else {
 
+        if ($transaction['compte']) {
+            $cmop = $transaction['compte'];
 
-                $newtransac = new Transactions();
-                $newtransac->setDateDepot($date);
-                // $Transaction->setUserTransaction($users);//le user qui a fais le depot
-                //$newtransac->setComission($fr);
-                // dd($fr);
-                $newtransac->setComission($fr);
-                $newtransac->setCodeTransaction($code);
-                $newtransac->setFraisEtat($partEta);
-                $newtransac->setFraisSysteme($partSys);
-                $newtransac->setFraisEnvoie($partDep);
-                $newtransac->setFraisRetrait($partRet);
-                $newtransac->setMontant($transaction['montant']);
-                $entityManager->persist($newtransac);
+            if ($comptesRepository->find((int)$cmop)) {
+                $objet = ($comptesRepository->find((int)$cmop));
+                //dd($objet->getSolde());
+                if ($objet->getSolde() <= $transaction['montant']) {
+                    $data = [
+                        'status' => 500,
+                        'message' => ('L\'etat de votre Compte ne vous permet d\'effectue cette transaction votre solde est: ' .
+                            $objet->getSolde() . ' et le montant de la transaction est ' .
+                            $transaction['montant'] . ' Desolé !!!!§§§§')
+                    ];
 
-                //$mypart=$transaction->getTarifs()-$transaction->getPartDep();
-                if ($transaction['compte']) {
-                    // dd($competencerepo->findBy(['id'=>(int)$json['competence']]));
-                    $cmop = $transaction['compte'];
-                    //dd($cmop);
-                    for ($i = 0; $i < count($cmop); $i++) {
-                        if ($comptesRepository->find((int)$cmop[$i])) {
-                            $objet = ($comptesRepository->find((int)$cmop[$i]));
-                            // dd($objet->setSolde());
+                }else{
+                    $newtransac = new Transactions();
+                    $newtransac->setDateDepot($date);
+                    // $Transaction->setUserTransaction($users);//le user qui a fais le depot
+                    //$newtransac->setComission($fr);
+                    // dd($fr);
+                    $newtransac->setComission($fr);
+                    $newtransac->setCodeTransaction($code);
+                    $newtransac->setFraisEtat($partEta);
+                    $newtransac->setFraisSysteme($partSys);
+                    $newtransac->setFraisEnvoie($partDep);
+                    $newtransac->setFraisRetrait($partRet);
+                    $newtransac->setMontant($transaction['montant']);
+                    $entityManager->persist($newtransac);
+
+                    //$mypart=$transaction->getTarifs()-$transaction->getPartDep();
+                    if ($transaction['compte']) {
+                        // dd($transaction['compte']);
+                        // dd($competencerepo->findBy(['id'=>(int)$json['competence']]));
+                        $cmop = $transaction['compte'];
+                        //dd($cmop);
+                        // for ($i = 0; $i < count($cmop); $i++) {
+                        if ($comptesRepository->find((int)$cmop)) {
+                            $objet = ($comptesRepository->find((int)$cmop));
+                            // dd($objet);
                             $objet->setSolde($objet->getSolde() - $transaction['montant']);
                             $objet->addTransaction($newtransac);
 
                         }
+                        //}
+                        $entityManager->persist($objet);
                     }
-                    $entityManager->persist($objet);
-                }
-                if ($transaction['user']) {
-                    // dd($competencerepo->findBy(['id'=>(int)$json['competence']]));
-                    $cmop = $transaction['user'];
-                    //dd($cmop);
-                    //for ($i = 0; $i < count($cmop); $i++) {
+                    if ($transaction['user']) {
+                        // dd($competencerepo->findBy(['id'=>(int)$json['competence']]));
+                        $cmop = $transaction['user'];
+                        //dd($cmop);
+                        //for ($i = 0; $i < count($cmop); $i++) {
                         if ($userRepository->find((int)$cmop)) {
                             $objet = ($userRepository->find((int)$cmop));
-                            $objet->addUser($newtransac);
-                            $entityManager->persist($objet);
+                            $newtransac->addUser($objet);
+                            $entityManager->persist($newtransac);
                         }
-                    //}
+                        //}
 
-                }
-                //dd($transaction['client']->nomComplet);
-                for ($i = 0; $i < count($transaction['client']); $i++) {
-                    //ccreation du client a envoie
-                    $newclient = new Clirnts();
-                    $newclient->setNomComplet($transaction['client'][$i]['nomComplet']);
-                    $newclient->setPhone($transaction['client'][$i]['phone']);
-                    $newclient->setCni($transaction['client'][$i]['cni']);
-                    $newtransac->addClient($newclient);
+                    }
+                    //dd($transaction['client']->nomComplet);
+                    for ($i = 0; $i < count($transaction['client']); $i++) {
+                        //ccreation du client a envoie
+                        $newclient = new Clirnts();
+                        $newclient->setNomComplet($transaction['client'][$i]['nomComplet']);
+                        $newclient->setPhone($transaction['client'][$i]['phone']);
+                        $newclient->setCni($transaction['client'][$i]['cni']);
+                        $newtransac->addClient($newclient);
+                        $entityManager->persist($newclient);
+                    }
+                    // dd($mypart);
+                    //mis a jour Du Compte
+
                     $entityManager->persist($newclient);
-                }
-                // dd($mypart);
-                //mis a jour Du Compte
-                $solde = ($val->getSolde());
-                //dd($solde);
-                $newsolde = $solde - $transaction['montant'];
-                // dd($newsolde);
-                $solde = ($val->getSolde($newsolde));
-                $entityManager->persist($newclient);
 
-                // $entityManager->flush();
-                $data = [
-                    'status' => 200,
-                    'message' => 'Vous Avez Efeectue Une Operation de Transaction  De ' . $transaction['montant'] . ' Frais: ' . $fr .
-                        'le montant total esr de :' . $transaction['montant'] . +$fr . 'FRCFA' .
-                        ' Voici Le Code De La Transaction ' . $code . ': '
+                    $entityManager->flush();
+                    $data = [
+                        'status' => 200,
+                        'message' => 'Vous Avez Efeectue Une Operation de Transaction  De ' . $transaction['montant'] . ' Frais: ' . $fr .
+                            ' Voici Le Code De La Transaction ' . $code . ': '
 //.
 //                ' Votre Nouvou Solde pour le compte Numero '.$repCompt->getNumero().' Est : '.$repCompt->getSolde()
-                ];
+                    ];
+                    //$entityManager->flush();
+                }
+                //$objet->setSolde($objet->getSolde() - $transaction['montant']);
             }
+            //}
+            $entityManager->persist($objet);
         }
 
-        $entityManager->flush();
+
         return new JsonResponse($data, 200);
 
     }
@@ -192,26 +198,30 @@ class TransactionController extends AbstractController
 
     /**
      * @Route (
-     *     name="transaction",
-     *      path="/api/admin/transactions/{codet}",
+     *     name="retiret",
+     *      path="/api/admin/transactions/{code}",
      *      methods={"PUT"},
      *     defaults={
-     *           "__controller"="App\Controller\TransactionController::transaction",
+     *           "__controller"="App\Controller\TransactionController::retiret",
      *           "__api_ressource_class"=Transactions::class,
-     *           "__api_collection_operation_name"="recupere_Transaction"
+     *           "__api_collection_operation_name"="retiret_Transaction"
      *         }
      * )
      */
-    public function transaction(Request $request,$codet,ComptesRepository $comptesRepository, SerializerInterface $serializer)
+    public function retiret(Request $request,$code,TransactionsRepository $transactionsRepository,ComptesRepository $comptesRepository, SerializerInterface $serializer)
     {
         //dd('oki');
-
-        $transation = $this->transactionsRepository->findTransactionBycode($codet);
+       //dd($rett);
+        $transation = $transactionsRepository->findTransaction($code);
        //dd($transation);
-
+        //dd($transation);
         if ($transation) {
+
             if ($transation->getDateRetrait() !== null) {
-                return $this->json("Cette Transaction est déja retire ");
+                $data = [
+                    'status' => 200,
+                    'message' => 'Cete transation est est deja retire!!!! '
+                ];
             } else {
                 $transation->setDateRetrait(new \DateTime());
                 $this->manage->persist($transation);
@@ -245,11 +255,17 @@ class TransactionController extends AbstractController
                         $manage->persist($newclient);
                     }
                 }
+                $data = [
+                    'status' => 200,
+                    'message' => 'Vous Avez Efeectue Une Operation de retire '
+
+                ];
                 $this->manage->flush();
             }
         } else {
-            return $this->json("Cette code de Transaction n'est pas bonne!!! ");
+            return $this->json("Cette code de Transaction n'est pas bonne!!!");
         }
+        return new JsonResponse($data, 200);
     }
 
 }

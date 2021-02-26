@@ -32,12 +32,13 @@ class Agences
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     * @Groups ({"getOndepotUserCompt:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="integer")
-     * @Groups ({"getOndepotUserCompt:read"})
+     *@Groups ({"getOndepotUserCompt:read"})
      */
     private $numAgence;
 

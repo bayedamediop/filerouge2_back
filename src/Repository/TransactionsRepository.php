@@ -35,14 +35,14 @@ class TransactionsRepository extends ServiceEntityRepository
         ;
     }
     */
-
-    public function findTransactionBycode($value): ?Transactions
+    public function findTransaction($value): ?Transactions
     {
         return $this->createQueryBuilder('t')
             ->andWhere('t.codeTransaction = :val')
             ->setParameter('val', $value)
             ->getQuery()
             ->getOneOrNullResult();
+
     }
 
 }

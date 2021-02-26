@@ -12,7 +12,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity(repositoryClass=TransactionsRepository::class)
  * @ApiResource(
  *           attributes={
- *         "security" = "(is_granted('ROLE_ADMIN') or is_granted('ROLE_FORMATEUR'))",
+ *         "security" = "(is_granted('ADMIN_PARTENAIRE') or is_granted('UTILISATEUR'))",
  *      "security_message" = " OBBB ,vous n'avez pas accès a cette resource"
  *      },
  *      collectionOperations={
@@ -26,8 +26,8 @@ use Doctrine\ORM\Mapping as ORM;
  *              }
  *      },
  *     itemOperations={
- *          "recupere_Transaction"={
- *                  "route_name"="recupereTransaction",
+ *          "retiret_Transaction"={
+ *                  "route_name"="retiret",
  *              }
  *      },
  *     )
@@ -82,7 +82,7 @@ class Transactions
     private $fraisRetrait;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="integer")
      */
     private $codeTransaction;
 
