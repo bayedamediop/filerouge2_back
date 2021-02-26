@@ -86,6 +86,7 @@ class Comptes
         $this->depots = new ArrayCollection();
         $this->transactions = new ArrayCollection();
         $this->agences = new ArrayCollection();
+        $this->numCompte = rand(9, 1000000000);
     }
 
     public function getId(): ?int

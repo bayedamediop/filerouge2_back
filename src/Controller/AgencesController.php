@@ -7,6 +7,7 @@ use App\Entity\Agences;
 use App\Entity\User;
 use App\Repository\AgencesRepository;
 use App\Repository\ComptesRepository;
+use App\Repository\ProfilsRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -53,71 +54,64 @@ class AgencesController extends AbstractController
      *         }
      * )
      */
-    public function creatAgence(Request $request, SerializerInterface $serialize, UserPasswordEncoderInterface $encoder)
+    public function creatAgence(Request $request, SerializerInterface $serialize,
+                             AgencesRepository $agencesRepository,ComptesRepository $comptesRepository,
+                                ProfilsRepository $profilsRepository,UserPasswordEncoderInterface $encoder,
+                                UserPasswordEncoderInterface $passwordEncoder)
     {
         $json = json_decode($request->getContent());
         //dd($json,401);
 
         //verifions s'il faut crée le groupe oubien l'affecté des competences
-        if (isset($json->id)) {
-            $agences = $this->agence->find($json->id);
-
-        } else {
-            $agences = null;
-
-        }
         // dd($agences);
-        if ($agences != null) {
-
-            //dans le cas ou agence existe deja
-            for ($i = 0; $i < count($json->comptes); $i++) {
-                if (isset($json->compte[$i]->id)) {
-                    //affectation la/les competences au groupe
-                    $comptes = $this->compte->find($json->comptes[$i]->id);
-                    $agences->setCompte($comptes);
-                }
+        if (isset($json->agence)) {
+            $newagence = $agencesRepository->find($json->agence);
+            $this->em->persist($newagence);
+             if ($this->userRepository->find((int)$json->userCreat)) {
+                //affectation la/les competences au groupe
+                $ucecreer = $this->userRepository->find((int)$json->userCreat);
+               // dd($ucecreer);
+                $newagence->setUserCreat($ucecreer);
+                $this->em->persist($newagence);
             }
-            //dd($json->user);
-            //for ($i=0; $i < count($json->user); $i++) {
-            // $users = $this->serializer->denormalize($json->user, "App\Entity\User");
-            // $password = $users->getPassword();
-            //creation de la user
-//                    $newuser = new User();
-//                $newuser->setEmail($json->user[$i]->email)
-//                        ->setNom($json->user[$i]->nom)
-//                        ->setPrenom($json->user[$i]->prenom)
-//                        ->setPassword($json->user[$i]="diop")
-//                        ->setProfils($json->user[$i]->profil)
-//                        ->setAdresse($json->user[$i]->adresse)
-//                        ->setCni($json->user[$i]->cni)
-//                        ->setPhone($json->user[$i]->phone)
-//                        ->setArchivage($json->user[$i]=false);
-            //$agences->setUser($users);
+            if ($this->userRepository->find((int)$json->user)) {
+                //affectation la/les competences au groupe
+                $ucecreer = $this->userRepository->find((int)$json->user);
+               // dd($ucecreer);
 
-            //}
-            $this->em->persist($agences);
+                $newagence->setUser($ucecreer);
+                $this->em->persist($newagence);
+            }
+
+               //mettons a jour le bdd
+            $this->em->flush();
+            return $this->json('affecte succesfully',Response::HTTP_OK);
         } else { //si groupe de competence n'existe on crée
+            //die();
             $newagence = new Agences();
             $newagence->setNumAgence(rand(9, 1000000000))
                 ->setAdresseAgence($json->adresse)
                 ->setStatut(false);
-            for ($i = 0; $i < count($json->comptes); $i++) {
-                if (isset($json->compte[$i]->id)) {
+            //dd($json->comptes);
+            //for ($i = 0; $i < count($json->comptes); $i++) {
+                if ($this->compte->find($json->comptes)) {
                     //affectation la/les competences au groupe
-                    $comptes = $this->compte->find($json->comptes[$i]->id);
-
+                    $comptes = $comptesRepository->find((int)$json->comptes);
+                     //dd($comptes);
                     $newagence->setCompte($comptes);
                     $this->em->persist($newagence);
-                }
+                //}
             }
-            for ($i = 0; $i < count($json->userCreat); $i++) {
-                if (isset($json->compte[$i]->id)) {
+           // for ($i = 0; $i < count($json->userCreat); $i++) {
+            //dd($json->userCreat);
+                if ($this->userRepository->find((int)$json->userCreat)) {
                     //affectation la/les competences au groupe
-                    $comptes = $this->userRepository->find($json->userCreat[$i]->id);
-                    $comptes->addAgence($newagence);
-                    $this->em->persist($comptes);
+                    $ucecreer = $this->userRepository->find((int)$json->userCreat);
+                    //dd($ucecreer);
+                    $newagence->setUserCreat($ucecreer);
+                    $this->em->persist($newagence);
 
-                }
+                //}
             }
             //dd($json->user);
             // $users = $serialize->deserialize($request->getContent(), User::class, 'json');
@@ -128,7 +122,16 @@ class AgencesController extends AbstractController
                 //$users = $this->serializer->denormalize($json->user, "App\Entity\User");
                 //dd($users);
                 $newuser = new User();
-                dd($json->user[$i]->profil);
+                //dd($json->user[$i]->profil);
+                 if($profilsRepository->find((int)$json->user[$i]->profil)){
+                     $profil = $profilsRepository->find((int)$json->user[$i]->profil);
+                   //  dd($profil);
+                     if ($profil->getLibelle() !== "UTILISATEUR"){
+                         return $this->json('cet id n est pas un utilisater');
+                     }else{
+                         $newuser->setProfils($profil);
+                     }
+                 }
                 $newuser->setEmail($json->user[$i]->email);
                 $newuser->setNom($json->user[$i]->nom);
                 $newuser->setPrenom($json->user[$i]->prenom);
@@ -140,12 +143,12 @@ class AgencesController extends AbstractController
                 $newuser->setCni($json->user[$i]->cni);
                 $newuser->setPhone($json->user[$i]->phone);
                 $newuser->setArchivage($json->user[$i] = false);
-                $newuser->setProfils($json->user[$i] = `/api/profils/10`);
-                $this->em->persist($newuser);
                 $newagence->setUser($newuser);
+                $this->em->persist($newuser);
 
+                $this->em->persist($newagence);
             }
-            $this->em->persist($newagence);
+
         }
         //validation groupe competences
 
@@ -153,7 +156,7 @@ class AgencesController extends AbstractController
         //$this->em->persist($agences);
 
 
-        $this->em->flush();
+       $this->em->flush();
         return $this->json('added succesfully', Response::HTTP_OK);
     }
 }
