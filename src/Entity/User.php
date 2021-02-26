@@ -38,9 +38,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  *                       "normalization_context"={"groups"={"userdepot:read"}}
  *
  *      },
- *            "delete"={
- *                      "method"="DELETE",
- *                    "path" = "/admin/users/{id}",
+ *            "archiver_users"={
+ *                      "route_name"="archiver",
  *              },
  *      "putUserId":{
  *           "method":"put",

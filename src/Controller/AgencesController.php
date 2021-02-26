@@ -11,6 +11,7 @@ use App\Repository\ProfilsRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -150,14 +151,31 @@ class AgencesController extends AbstractController
             }
 
         }
-        //validation groupe competences
-
-
-        //$this->em->persist($agences);
-
-
        $this->em->flush();
         return $this->json('added succesfully', Response::HTTP_OK);
+    }
+    // _______________________________archiver un agence est ces utilisateurs-------------------------
+    /**
+     * @Route (
+     *     name="archive",
+     *      path="/api/admin/agences/{id}",
+     *      methods={"DELETE"},
+     *     defaults={
+     *           "__controller"="App\Controller\AgencesController::archive",
+     *           "__api_ressource_class"=Agences::class,
+     *           "__api_collection_operation_name"="archive_Agence"
+     *         }
+     * )
+     */
+    public function archive($id,AgencesRepository $agencesRepository,UserRepository $userRepository,EntityManagerInterface $manager)
+    {
+        $user = $agencesRepository->find($id);
+        $user->setStatut(true);
+       $user->getUser()->setArchivage(true);
+
+            $manager->flush();
+        return new JsonResponse("User Archivé",200,[],true);
+
     }
 }
 

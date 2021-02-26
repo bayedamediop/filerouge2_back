@@ -121,6 +121,28 @@ public function putUserId($id,UserService $service, Request $request,
     $manager->flush();
     return new JsonResponse("success",200,[],true);
 }
+  // _______________________________archiver un user-------------------------
+
+    /**
+     * @Route(
+     *  name = "archiver",
+     *  path = "/api/admin/users/{id}",
+     *  methods = {"DELETE"},
+     *  defaults  = {
+     *      "__controller"="App\Controller\UserController::archiver",
+     *      "__api_ressource_class"=User::class,
+     *      "__api_collection_operation_name"="archiver_users"
+     * }
+     * )
+     */
+    public function archiver($id,UserRepository $userRepository,EntityManagerInterface $manager)
+    {
+        $user = $userRepository->find($id);
+        $user->setArchivage(true);
+        $manager->flush();
+        return new JsonResponse("User Archivé",200,[],true);
+
+    }
 
     /**
      * @Route("/login", name="app_login")

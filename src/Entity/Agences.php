@@ -22,6 +22,9 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *                  },
  *          "add_agence"={
  *                  "route_name"="creatAgence",
+ *              },
+ *     "archive_Agence"={
+ *                  "route_name"="archive",
  *              }
  *      },
  *     )
