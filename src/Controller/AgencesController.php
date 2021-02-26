@@ -128,7 +128,7 @@ class AgencesController extends AbstractController
                 //$users = $this->serializer->denormalize($json->user, "App\Entity\User");
                 //dd($users);
                 $newuser = new User();
-                //dd($json->user[$i]->email);
+                dd($json->user[$i]->profil);
                 $newuser->setEmail($json->user[$i]->email);
                 $newuser->setNom($json->user[$i]->nom);
                 $newuser->setPrenom($json->user[$i]->prenom);

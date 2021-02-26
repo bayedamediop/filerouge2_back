@@ -20,7 +20,7 @@ class DepotsRepository extends ServiceEntityRepository
     }
 
 ///permet de recuperer les chats d'un user
-    public function ifuserAndCompteInDepot($idd)
+    public function ifuserAndCompteInDepot($idd,$idu)
     {
         return $this->createQueryBuilder('u')
             ->innerJoin('u.depots', 'de')

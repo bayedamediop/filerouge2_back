@@ -27,6 +27,18 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *                  "method" = "POST",
  *                  "path" = "/admin/comptes",
  *      },
+ *
+ *      },
+ *     itemOperations={
+ *     "get_CoompteByNumero"={
+ *                  "route_name"="getCoompteByNumero",
+ *                    "normalization_context"={"groups"={"numcompte:read"}}
+ *      },
+ *     "get"={
+ *                  "method" = "GET",
+ *                  "path" = "/admin/comptes/{id}",
+ *                  "normalization_context"={"groups"={"cmopte:read"}}
+ *                  },
  *      },
  *     )
  */
@@ -41,9 +53,10 @@ class Comptes
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=255)
-     * @Groups ({"depot:read","comptes:read","userdepot:read","getOndepotUserCompt:read"})
-    private $numCompte = "rand(2, 10000000)";
+     * @ORM\Column(type="integer")
+     * @Groups ({"depot:read","comptes:read","userdepot:read","getOndepotUserCompt:read","numcompte:read"})
+     */
+          private $numCompte ;
 
     /**
      * @ORM\Column(type="float")
@@ -56,7 +69,9 @@ class Comptes
     private $depots;
 
     /**
-     * @ORM\OneToMany(targetEntity=Transactions::class, mappedBy="copmte")
+     * @ORM\OneToMany(targetEntity=Transactions::class, mappedBy="copmte",cascade={"persist"})
+     *  @Groups ({"numcompte:read"})
+
      */
     private $transactions;
 

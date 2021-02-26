@@ -7,6 +7,7 @@ use App\Repository\TransactionsRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=TransactionsRepository::class)
@@ -28,7 +29,12 @@ use Doctrine\ORM\Mapping as ORM;
  *     itemOperations={
  *          "retiret_Transaction"={
  *                  "route_name"="retiret",
- *              }
+ *              },
+ *     "get"={
+ *                  "method" = "GET",
+ *                  "path" = "/admin/comptes/{id}",
+ *                  "normalization_context"={"groups"={"cmopte:read"}}
+ *                  },
  *      },
  *     )
  */
@@ -43,16 +49,19 @@ class Transactions
 
     /**
      * @ORM\Column(type="float")
+     * @Groups ({"numcompte:read"})
      */
     private $montant;
 
     /**
      * @ORM\Column(type="date",nullable=true)
+     * @Groups ({"numcompte:read"})
      */
     private $dateDepot;
 
     /**
      * @ORM\Column(type="date",nullable=true)
+     * @Groups ({"numcompte:read"})
      */
     private $dateRetrait;
 
@@ -68,16 +77,19 @@ class Transactions
 
     /**
      * @ORM\Column(type="float")
+
      */
     private $fraisSysteme;
 
     /**
      * @ORM\Column(type="float")
+     * @Groups ({"numcompte:read"})
      */
     private $fraisEnvoie;
 
     /**
      * @ORM\Column(type="float")
+     * @Groups ({"numcompte:read"})
      */
     private $fraisRetrait;
 

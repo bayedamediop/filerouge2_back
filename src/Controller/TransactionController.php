@@ -164,15 +164,16 @@ class TransactionController extends AbstractController
                         'status' => 200,
                         'message' => 'Vous Avez Efeectue Une Operation de Transaction  De ' . $transaction['montant'] . ' Frais: ' . $fr .
                             ' Voici Le Code De La Transaction ' . $code . ': '
-//.
-//                ' Votre Nouvou Solde pour le compte Numero '.$repCompt->getNumero().' Est : '.$repCompt->getSolde()
                     ];
-                    //$entityManager->flush();
                 }
-                //$objet->setSolde($objet->getSolde() - $transaction['montant']);
             }
             //}
             $entityManager->persist($objet);
+        }else{
+            $data = [
+                'status' => 200,
+                'message' => 'Le compte n existe pas'
+            ];
         }
 
 
