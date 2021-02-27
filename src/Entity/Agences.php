@@ -11,8 +11,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  * @ORM\Entity(repositoryClass=AgencesRepository::class)
  * @ApiResource(
  *           attributes={
- *         "security" = "(is_granted('UTILISATEUR') or is_granted('ADMIN_PARTENAIRE'))",
- *      "security_message" = " OBBB ,vous n'avez pas accès a cette resource"
+
  *      },
  *      collectionOperations={
  *          "get"={
@@ -22,6 +21,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *                  },
  *          "add_agence"={
  *                  "route_name"="creatAgence",
+ *                   " security" = "(is_granted('ROLE_ADMIN') )",
+ *                    "security_message" = " OBBB ,vous n'avez pas accès a cette resource"
  *              },
  *     "archive_Agence"={
  *                  "route_name"="archive",

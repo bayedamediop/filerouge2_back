@@ -113,6 +113,16 @@ class Transactions
      */
     private $client;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=Clirnts::class, inversedBy="transaction")
+     */
+    private $clientEnvoie;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Clirnts::class, inversedBy="transaction")
+     */
+    private $clientRecu;
+
     public function __construct()
     {
         $this->user = new ArrayCollection();
@@ -289,6 +299,30 @@ class Transactions
     public function removeClient(Clirnts $client): self
     {
         $this->client->removeElement($client);
+
+        return $this;
+    }
+
+    public function getClientEnvoie(): ?Clirnts
+    {
+        return $this->clientEnvoie;
+    }
+
+    public function setClientEnvoie(?Clirnts $clientEnvoie): self
+    {
+        $this->clientEnvoie = $clientEnvoie;
+
+        return $this;
+    }
+
+    public function getClientRecu(): ?Clirnts
+    {
+        return $this->clientRecu;
+    }
+
+    public function setClientRecu(?Clirnts $clientRecu): self
+    {
+        $this->clientRecu = $clientRecu;
 
         return $this;
     }

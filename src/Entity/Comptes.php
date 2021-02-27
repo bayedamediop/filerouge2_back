@@ -7,15 +7,13 @@ use App\Repository\ComptesRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=ComptesRepository::class)
  * @ApiResource(
- *           attributes={
- *         "security" = "(is_granted('ROLE_ADMIN') )",
- *      "security_message" = " OBBB ,vous n'avez pas accès a cette resource"
- *      },
+ *
  *      collectionOperations={
  *          "get"={
  *                  "method" = "GET",
@@ -26,6 +24,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *     "post"={
  *                  "method" = "POST",
  *                  "path" = "/admin/comptes",
+ *     "security" = "(is_granted('ROLE_ADMIN') )",
+ *      "security_message" = " OBBB ,vous n'avez pas accès a cette resource"
  *      },
  *
  *      },
@@ -206,5 +206,30 @@ class Comptes
         }
 
         return $this;
+    }
+
+    public function getRoles()
+    {
+        // TODO: Implement getRoles() method.
+    }
+
+    public function getPassword()
+    {
+        // TODO: Implement getPassword() method.
+    }
+
+    public function getSalt()
+    {
+        // TODO: Implement getSalt() method.
+    }
+
+    public function getUsername()
+    {
+        // TODO: Implement getUsername() method.
+    }
+
+    public function eraseCredentials()
+    {
+        // TODO: Implement eraseCredentials() method.
     }
 }

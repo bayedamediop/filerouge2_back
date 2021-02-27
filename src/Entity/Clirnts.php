@@ -20,17 +20,17 @@ class Clirnts
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255,nullable=true)
      */
     private $nomComplet;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255,nullable=true)
      */
     private $phone;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255,nullable=true)
      */
     private $cni;
 
@@ -38,6 +38,11 @@ class Clirnts
      * @ORM\ManyToMany(targetEntity=Transactions::class, mappedBy="client",cascade={"persist"})
      */
     private $transactions;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Transactions::class, mappedBy="clientEnvoie")
+     */
+    private $transaction;
 
     public function __construct()
     {

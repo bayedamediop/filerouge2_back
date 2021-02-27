@@ -6,6 +6,7 @@ use App\Entity\Clirnts;
 use App\Entity\Comptes;
 use App\Entity\Tarifs;
 use App\Entity\Transactions;
+use App\Repository\ClirntsRepository;
 use App\Repository\ComptesRepository;
 use App\Repository\TransactionsRepository;
 use App\Repository\UserRepository;
@@ -144,14 +145,23 @@ class TransactionController extends AbstractController
                         //}
 
                     }
-                    //dd($transaction['client']->nomComplet);
+                    //dd($transaction['client']['nomComplet']);
                     for ($i = 0; $i < count($transaction['client']); $i++) {
                         //ccreation du client a envoie
                         $newclient = new Clirnts();
                         $newclient->setNomComplet($transaction['client'][$i]['nomComplet']);
                         $newclient->setPhone($transaction['client'][$i]['phone']);
                         $newclient->setCni($transaction['client'][$i]['cni']);
-                        $newtransac->addClient($newclient);
+                        $newtransac->setClientEnvoie($newclient);
+                        $entityManager->persist($newclient);
+                    }
+                    for ($i = 0; $i < count($transaction['client_recu']); $i++) {
+                        //ccreation du client a envoie
+                        $newclient = new Clirnts();
+                        $newclient->setNomComplet($transaction['client_recu'][$i]['nomComplet']);
+                        $newclient->setPhone($transaction['client_recu'][$i]['phone']);
+                       // $newclient->setCni($transaction['client'][$i]['cni']);
+                        $newtransac->setClientRecu($newclient);
                         $entityManager->persist($newclient);
                     }
                     // dd($mypart);
@@ -209,12 +219,13 @@ class TransactionController extends AbstractController
      *         }
      * )
      */
-    public function retiret(Request $request,$code,TransactionsRepository $transactionsRepository,ComptesRepository $comptesRepository, SerializerInterface $serializer)
+    public function retiret(Request $request,$code,TransactionsRepository $transactionsRepository,
+                           ClirntsRepository $clirntsRepository,ComptesRepository $comptesRepository, SerializerInterface $serializer)
     {
         //dd('oki');
        //dd($rett);
         $transation = $transactionsRepository->findTransaction($code);
-       //dd($transation);
+       //dd($transation->getClientRecu()->getCni());
         //dd($transation);
         if ($transation) {
 
@@ -244,17 +255,21 @@ class TransactionController extends AbstractController
                     $manage->persist($transation);
                 }
                 $doonneClient = json_decode($request->getContent(),'json');
-
+         // dd($doonneClient['client']);
                 if ($doonneClient['client']) {
-                    for ($i = 0; $i < count($doonneClient['client']); $i++) {
-                        //ccreation du client a envoie
-                        $newclient = new Clirnts();
-                        $newclient->setNomComplet($doonneClient['client'][$i]['nomComplet']);
-                        $newclient->setPhone($doonneClient['client'][$i]['phone']);
-                        $newclient->setCni($doonneClient['client'][$i]['cni']);
-                        $transation->addClient($newclient);
-                        $manage->persist($newclient);
-                    }
+                    $objet = ($clirntsRepository->find((int)$doonneClient['client']));
+                           //dd($objet);
+//                    for ($i = 0; $i < count($doonneClient['client']); $i++) {
+//                       //dd( $doonneClient['client'][$i]['cni']);
+//                        $newclient=$transation->getClientRecu()->getCni($doonneClient['client'][$i]['cni']);
+//                        //ccreation du client a envoie
+//                       // $newclient = new Clirnts();
+//                        //$newclient->setNomComplet($doonneClient['client'][$i]['nomComplet']);
+//                       // $newclient->setPhone($doonneClient['client'][$i]['phone']);
+//                       // $newclient->$transation->getClientRecu()->getCni($newclient->setCni($doonneClient['client'][$i]['cni']));
+//                        $transation->ad($newclient);
+//                       $manage->persist($transation);
+                   //}
                 }
                 $data = [
                     'status' => 200,
