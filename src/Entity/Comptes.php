@@ -13,7 +13,10 @@ use Symfony\Component\Serializer\Annotation\Groups;
 /**
  * @ORM\Entity(repositoryClass=ComptesRepository::class)
  * @ApiResource(
- *
+ *           attributes={
+ *         "security" = "(is_granted('ROLE_ADMIN') )",
+ *      "security_message" = " OBBB ,vous n'avez pas accès a cette resource"
+ *      },
  *      collectionOperations={
  *          "get"={
  *                  "method" = "GET",
@@ -24,8 +27,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *     "post"={
  *                  "method" = "POST",
  *                  "path" = "/admin/comptes",
- *     "security" = "(is_granted('ROLE_ADMIN') )",
- *      "security_message" = " OBBB ,vous n'avez pas accès a cette resource"
  *      },
  *
  *      },

@@ -6,11 +6,13 @@ use App\Entity\Clirnts;
 use App\Entity\Comptes;
 use App\Entity\Tarifs;
 use App\Entity\Transactions;
+use App\Entity\TypeTransaction;
 use App\Repository\ClirntsRepository;
 use App\Repository\ComptesRepository;
 use App\Repository\TransactionsRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Faker\Provider\DateTime;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -79,8 +81,8 @@ class TransactionController extends AbstractController
         //dd($fr);
         $partEta = (40 * $fr) / 100;
         $partSys = (30 * $fr) / 100;
-        $partDep = (20 * $fr) / 100;
-        $partRet = (10 * $fr) / 100;
+        $partDep = (10 * $fr) / 100;
+        $partRet = (20 * $fr) / 100;
         //dd($partEta);
         //dd($transaction);
         $slode = $this->getDoctrine()->getRepository(Comptes::class);
@@ -103,17 +105,21 @@ class TransactionController extends AbstractController
                 }else{
                     $newtransac = new Transactions();
                     $newtransac->setDateDepot($date);
-                    // $Transaction->setUserTransaction($users);//le user qui a fais le depot
-                    //$newtransac->setComission($fr);
-                    // dd($fr);
                     $newtransac->setComission($fr);
                     $newtransac->setCodeTransaction($code);
                     $newtransac->setFraisEtat($partEta);
                     $newtransac->setFraisSysteme($partSys);
-                    $newtransac->setFraisEnvoie($partDep);
-                    $newtransac->setFraisRetrait($partRet);
+
                     $newtransac->setMontant($transaction['montant']);
                     $entityManager->persist($newtransac);
+
+                    // creation de nouveau type transsaction;
+                      $newtype = new TypeTransaction();
+                    $newtype->setLibelle("depot")
+                          ->setFrais($partDep)
+                        ->setDateTransaction(new \DateTime());
+                    $newtransac->setTypeTransaction($newtype);
+                    $entityManager->persist($newtype);
 
                     //$mypart=$transaction->getTarifs()-$transaction->getPartDep();
                     if ($transaction['compte']) {
@@ -168,12 +174,11 @@ class TransactionController extends AbstractController
                     //mis a jour Du Compte
 
                     $entityManager->persist($newclient);
-
                     $entityManager->flush();
                     $data = [
                         'status' => 200,
                         'message' => 'Vous Avez Efeectue Une Operation de Transaction  De ' . $transaction['montant'] . ' Frais: ' . $fr .
-                            ' Voici Le Code De La Transaction ' . $code . ': '
+                            ' Voici Le Code De La Transaction ' . $code . ':'
                     ];
                 }
             }
@@ -222,14 +227,15 @@ class TransactionController extends AbstractController
     public function retiret(Request $request,$code,TransactionsRepository $transactionsRepository,
                            ClirntsRepository $clirntsRepository,ComptesRepository $comptesRepository, SerializerInterface $serializer)
     {
-        //dd('oki');
-       //dd($rett);
         $transation = $transactionsRepository->findTransaction($code);
-       //dd($transation->getClientRecu()->getCni());
-        //dd($transation);
+      // dd($transation);
+        //dd($transation->getMontant());
+        $fr = $this->frais($transation->getMontant());
+        //dd($fr);
+        $partRet = (20 * $fr) / 100;
         if ($transation) {
 
-            if ($transation->getDateRetrait() !== null) {
+            if ($transation->getStatut() === true) {
                 $data = [
                     'status' => 200,
                     'message' => 'Cete transation est est deja retire!!!! '
@@ -238,6 +244,13 @@ class TransactionController extends AbstractController
                 $transation->setDateRetrait(new \DateTime());
                 $this->manage->persist($transation);
                 //dd($transation);
+                $newtype = new TypeTransaction();
+                $newtype->setLibelle("retrait")
+                    ->setFrais($partRet)
+                    ->setDateTransaction(new \DateTime());
+                $transation->setTypeTransaction($newtype);
+                $manage = $this->getDoctrine()->getManager();
+                $manage->persist($newtype);
                 $doonne = json_decode($request->getContent());
                 //dd($doonne);
                 if ($doonne->compte) {

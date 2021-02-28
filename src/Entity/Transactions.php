@@ -55,13 +55,12 @@ class Transactions
 
     /**
      * @ORM\Column(type="date",nullable=true)
-     * @Groups ({"numcompte:read"})
      */
+
     private $dateDepot;
 
     /**
      * @ORM\Column(type="date",nullable=true)
-     * @Groups ({"numcompte:read"})
      */
     private $dateRetrait;
 
@@ -82,14 +81,12 @@ class Transactions
     private $fraisSysteme;
 
     /**
-     * @ORM\Column(type="float")
-     * @Groups ({"numcompte:read"})
+     * @ORM\Column(type="float",nullable=true)
      */
     private $fraisEnvoie;
 
     /**
-     * @ORM\Column(type="float")
-     * @Groups ({"numcompte:read"})
+     * @ORM\Column(type="float",nullable=true)
      */
     private $fraisRetrait;
 
@@ -105,6 +102,7 @@ class Transactions
 
     /**
      * @ORM\ManyToMany(targetEntity=User::class, inversedBy="transactions",cascade={"persist"})
+     * @Groups ({"numcompte:read"})
      */
     private $user;
 
@@ -122,6 +120,17 @@ class Transactions
      * @ORM\ManyToOne(targetEntity=Clirnts::class, inversedBy="transaction")
      */
     private $clientRecu;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=TypeTransaction::class, inversedBy="typeTransaction")
+     * @Groups ({"numcompte:read"})
+     */
+    private $typeTransaction;
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $statut = true;
 
     public function __construct()
     {
@@ -323,6 +332,30 @@ class Transactions
     public function setClientRecu(?Clirnts $clientRecu): self
     {
         $this->clientRecu = $clientRecu;
+
+        return $this;
+    }
+
+    public function getTypeTransaction(): ?TypeTransaction
+    {
+        return $this->typeTransaction;
+    }
+
+    public function setTypeTransaction(?TypeTransaction $typeTransaction): self
+    {
+        $this->typeTransaction = $typeTransaction;
+
+        return $this;
+    }
+
+    public function getStatut(): ?bool
+    {
+        return $this->statut;
+    }
+
+    public function setStatut(bool $statut): self
+    {
+        $this->statut = $statut;
 
         return $this;
     }

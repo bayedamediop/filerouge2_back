@@ -87,13 +87,13 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups ({"userdepot:read","getOndepotUserCompt:read"})
+     * @Groups ({"userdepot:read","getOndepotUserCompt:read","numcompte:read"})
      */
     private $nom;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups ({"userdepot:read","getOndepotUserCompt:read"})
+     * @Groups ({"userdepot:read","getOndepotUserCompt:read","numcompte:read"})
      */
     private $prenom;
 

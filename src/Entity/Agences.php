@@ -28,6 +28,16 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *                  "route_name"="archive",
  *              }
  *      },
+ *      itemOperations={
+ *           "get_agence_by_id"={
+ *                   "method"="GET",
+ *                    "path" = "/admin/agences/{id}",
+ *                       "normalization_context"={"groups"={"agence:read"}},
+ *                      " security" = "(is_granted('ROLE_ADMIN') )",
+ *                    "security_message" = " OBBB ,vous n'avez pas accès a cette resource"
+ *
+ *      },
+ *      },
  *     )
  */
 class Agences
@@ -42,13 +52,13 @@ class Agences
 
     /**
      * @ORM\Column(type="integer")
-     *@Groups ({"getOndepotUserCompt:read"})
+     *@Groups ({"getOndepotUserCompt:read","agence:read"})
      */
     private $numAgence;
 
     /**
      * @ORM\Column(type="string", length=255)
-     *  @Groups ({"getOndepotUserCompt:read"})
+     *  @Groups ({"getOndepotUserCompt:read","agence:read"})
      */
     private $adresseAgence;
 
