@@ -30,6 +30,9 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *          "retiret_Transaction"={
  *                  "route_name"="retiret",
  *              },
+ *              "delet_Transaction"={
+ *                  "route_name"="deletTransaction",
+ *              },
  *     "get"={
  *                  "method" = "GET",
  *                  "path" = "/admin/comptes/{id}",
@@ -49,18 +52,20 @@ class Transactions
 
     /**
      * @ORM\Column(type="float")
-     * @Groups ({"numcompte:read"})
+     * @Groups ({"numcompte:read","agence:read"})
      */
     private $montant;
 
     /**
      * @ORM\Column(type="date",nullable=true)
+     *  @Groups ({"agence:read"})
      */
 
     private $dateDepot;
 
     /**
      * @ORM\Column(type="date",nullable=true)
+     *  @Groups ({"agence:read"})
      */
     private $dateRetrait;
 
@@ -128,11 +133,14 @@ class Transactions
 
     /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="transactions")
+     *  @Groups ({"agence:read"})
+     * 
      */
     private $userDepot;
 
     /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="transactions")
+     *  @Groups ({"agence:read"})
      */
     private $userRetrait;
 

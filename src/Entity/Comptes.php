@@ -33,7 +33,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *     itemOperations={
  *     "get_CoompteByNumero"={
  *                  "route_name"="getCoompteByNumero",
- *                    "normalization_context"={"groups"={"numcompte:read"}}
+ *                   
  *      },
  *     "get"={
  *                  "method" = "GET",
@@ -49,30 +49,33 @@ class Comptes
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
-     * @Groups ({"agence:write"})
+     * 
      *
      */
     private $id;
 
     /**
      * @ORM\Column(type="integer")
-     * @Groups ({"depot:read","comptes:read","userdepot:read","getOndepotUserCompt:read","numcompte:read"})
+     * @Groups ({"depot:read","comptes:read","userdepot:read","getOndepotUserCompt:read"})
      */
           private $numCompte ;
 
     /**
      * @ORM\Column(type="float")
+     *  @Groups ({"numcompte:read"})
      */
     private $solde;
+    
 
     /**
      * @ORM\OneToMany(targetEntity=Depots::class, mappedBy="compte",cascade={"persist"})
+     *  @Groups ({"numcompte:read"})
      */
     private $depots;
 
     /**
      * @ORM\OneToMany(targetEntity=Transactions::class, mappedBy="copmte",cascade={"persist"})
-     *  @Groups ({"numcompte:read"})
+     *  @Groups ({"numcompte:read","agence:read"})
 
      */
     private $transactions;

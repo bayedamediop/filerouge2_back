@@ -28,9 +28,11 @@ use Symfony\Component\Validator\Constraints as Assert;
  *      },
  *      },
  *         itemOperations={
- *
- *             "get_userandcopmt"={
+ *     "get_userandcopmt"={
  *                  "route_name"="getuserandcopmt"
+ *              },
+ *  "delet_lastDepot"={
+ *                  "route_name"="deletlastDepot",
  *              },
  *     "get"={
  *                  "method" = "GET",
@@ -54,6 +56,7 @@ class Depots
     /**
      * @ORM\Column(type="float")
      * @Groups ({"userdepot:read","getOndepotUserCompt:read"})
+     * @Groups ({"numcompte:read"})
      */
     private $montantDepot;
 

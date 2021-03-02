@@ -66,5 +66,28 @@ class CompteController extends AbstractController
         return new JsonResponse("User Archivé",200,[],true);
 
     }
+    
+
+
+    // /**
+    //  * @Route (
+    //  *     name="deletlastDepot",
+    //  *      path="/api/admin/depots/{num}",
+    //  *      methods={"PUT"},
+    //  *     defaults={
+    //  *           "__controller"="App\Controller\CompteController::archivage",
+    //  *           "__api_ressource_class"=Comptes::class,
+    //  *           "__api_collection_operation_name"="delet_lastDepot"
+    //  *         }
+    //  * )
+    //  * 
+    //  */
+    // public function deletlastDepot(Request $request, $num, DepotsRepository $depots, ComptesRepository $comptesRepository){
+    //     $transation = $comptesRepository->findBy($num, 'DESC');
+    //     dd($transation);
+    //     $this->getUser()->getId();
+    //      //dd($transation);
+
+    // }
 
 }

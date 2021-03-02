@@ -127,4 +127,35 @@ class DepotController extends AbstractController
             return $this->json("User ou Comtpt competence inexistant");
         }
     }
+
+
+    /**
+     * @Route (
+     *     name="deletlastDepot",
+     *      path="/api/admin/depots",
+     *      methods={"DELETE"},
+     *     defaults={
+     *           "__controller"="App\Controller\DepotsController::deletlastDepot",
+     *           "__api_ressource_class"=Depots::class,
+     *           "__api_collection_operation_name"="delet_lastDepot"
+     *         }
+     * )
+     * 
+     */
+    public function deletlastDepot(Request $request,  DepotsRepository $depot,
+                    EntityManagerInterface $manage, ComptesRepository $comptesRepository){
+        $transation = $depot->findOneBy([],['id'=>'desc']);
+       $delete=($transation->getMontantDepot());
+          $solde= ($transation->getCompte()->getSolde());
+          $result= $transation->getCompte()->setSolde($solde - $delete) ;
+           $manage->persist($result);
+           $transation->getCompte()->removeDepot($transation);
+         $transation->getUsers()->removeDepot($transation);
+        // $transation->removeDepot($transation);
+           $manage->remove($transation);
+
+           $manage->flush();
+        // dd($transation);
+        return $this->json('seccess',200);
+    }
 }

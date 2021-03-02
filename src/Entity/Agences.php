@@ -42,8 +42,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *                   "method"="GET",
  *                    "path" = "/admin/agences/{id}",
  *                       "normalization_context"={"groups"={"agence:read"}},
- *                      " security" = "(is_granted('ROLE_ADMIN') )",
- *                    "security_message" = " OBBB ,vous n'avez pas accès a cette resource"
+ *  
  *
  *      },
  *      },
@@ -78,19 +77,19 @@ class Agences
 
     /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="agences",cascade={"persist"})
-     *  @Groups ({"agence:write"})
+     *  @Groups ({"agence:write","agence:read"})
      */
     private $user;
 
     /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="agences",cascade={"persist"})
-     *  @Groups ({"agence:write"})
+     * 
      */
     private $userCreat;
 
     /**
      * @ORM\ManyToOne(targetEntity=Comptes::class, inversedBy="agences")
-     * @Groups ({"agence:write"})
+     * @Groups ({"agence:read"})
      */
     private $compte;
     public function __construct()

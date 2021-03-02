@@ -37,19 +37,18 @@ class DepotsRepository extends ServiceEntityRepository
     // /**
     //  * @return Depots[] Returns an array of Depots objects
     //  */
-    /*
-    public function findByExampleField($value)
-    {
-        return $this->createQueryBuilder('d')
-            ->andWhere('d.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('d.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
-    */
+
+    // public function findNum($value)
+    // {
+    //     return $this->createQueryBuilder('d')
+    //         ->andWhere('d.id = :val')
+    //         ->setParameter('val', $value)
+    //         ->orderBy('d.id', 'DESC')
+    //         ->setMaxResults(10)
+    //         ->getQuery()
+    //         ->getResult()
+    //     ;
+    // }
 
     /*
     public function findOneBySomeField($value): ?Depots

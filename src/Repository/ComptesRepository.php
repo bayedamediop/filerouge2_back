@@ -22,19 +22,17 @@ class ComptesRepository extends ServiceEntityRepository
     // /**
     //  * @return Comptes[] Returns an array of Comptes objects
     //  */
-    /*
-    public function findByExampleField($value)
+
+    public function finLaste($value)
     {
         return $this->createQueryBuilder('c')
-            ->andWhere('c.exampleField = :val')
+            ->andWhere('c.numCompte = :val')
             ->setParameter('val', $value)
-            ->orderBy('c.id', 'ASC')
-            ->setMaxResults(10)
             ->getQuery()
             ->getResult()
         ;
     }
-    */
+
 
 
     public function findOneByNumero($value): ?Comptes

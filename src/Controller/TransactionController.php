@@ -130,7 +130,7 @@ class TransactionController extends AbstractController
                        // if ($comptesRepository->find((int))) {
                             $objet = ($comptesRepository->find((int)$userConnecte->getAgences()[0]->getCompte()->getId()));
                           // dd($objet->getSolde());
-                           $so= $objet->setSolde($objet->getSolde() - $transaction['montant']);
+                           $so= $objet->setSolde($objet->getSolde() - $transaction['montant'] + $partDep);
                             //dd($so);
                             $objet->addTransaction($newtransac);
                         $entityManager->persist($objet);
@@ -250,7 +250,7 @@ class TransactionController extends AbstractController
                 }
                 $objet = ($comptesRepository->find((int)$userConnecte->getAgences()[0]->getCompte()->getId()));
                 // dd($objet->getSolde());
-                 $solde = $objet->setSolde($objet->getSolde() + $transation->getMontant());
+                 $solde = $objet->setSolde($objet->getSolde() + $transation->getMontant() +$partRet);
                   //dd($so);
                   $solde->addTransaction($transation);
             
@@ -285,6 +285,67 @@ class TransactionController extends AbstractController
         } else {
             return $this->json("Cette code de Transaction n'est pas bonne!!!");
         }
+        return new JsonResponse($data, 200);
+    }
+
+
+    /**
+     * @Route (
+     *     name="deletTransaction",
+     *      path="/api/admin/transactions/{code}",
+     *      methods={"GET"},
+     *     defaults={
+     *           "__controller"="App\Controller\TransactionController::deletTransaction",
+     *           "__api_ressource_class"=Transactions::class,
+     *           "__api_collection_operation_name"="delet_Transaction"
+     *         }
+     * )
+     */
+    public function deletTransaction(Request $request, $code,  TransactionsRepository $transactionsRepository,
+                    EntityManagerInterface $manage, ComptesRepository $comptesRepository){
+        $transation = $transactionsRepository->findTransaction($code);
+        $usedepot=$transation->getUserDepot()->getId();
+        $userConnect=$this->getUser()->getId();
+       // dd($transation->getDateRetrait());
+         //dd($transation->getCopmte()->getSolde());
+
+       //$ $transation->getMontant()[0];
+        //dd($transation->getMontant());
+        if ($userConnect === $usedepot ) {
+            if ($transation->getDateRetrait() !== null){
+              // dd( $transation->setFraisRetrait());
+                return $this->json("Cette code de Transaction est deja retiret!!!");
+            }else{
+                $transation->getCopmte()->setSolde($transation->getCopmte()->getSolde()-$transation->getMontant());
+                $transation->setFraisEtat(0.0) ;
+                $transation->setDateRetrait(new \DateTime()) ;
+                $transation->setFraisRetrait(0) ;
+                $transation->setFraisSysteme(0.0) ;
+                 $manage->persist($transation);
+                
+            }
+            $manage->flush();
+            $data = [
+                'status' => 200,
+                'message' => 'Cete transation est annuler avec success!!!! '
+            ];
+        }else {
+            $data = [
+                'status' => 200,
+                'message' => 'Desole vous ne pouvez pas cette transactio!!! '
+            ];
+        }
+    //    $delete=($transation->getMontantDepot());
+    //       $solde= ($transation->getCompte()->getSolde());
+    //       $result= $transation->getCompte()->setSolde($solde - $delete) ;
+    //        $manage->persist($result);
+    //        $transation->getCompte()->removeDepot($transation);
+    //      $transation->getUsers()->removeDepot($transation);
+    //     // $transation->removeDepot($transation);
+    //        $manage->remove($transation);
+
+    //        $manage->flush();
+        // dd($transation);
         return new JsonResponse($data, 200);
     }
 

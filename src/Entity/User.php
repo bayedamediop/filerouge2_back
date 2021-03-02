@@ -370,8 +370,8 @@ class User implements UserInterface
     {
         if ($this->depots->removeElement($depot)) {
             // set the owning side to null (unless already changed)
-            if ($depot->getUser() === $this) {
-                $depot->setUser(null);
+            if ($depot->getUsers() === $this) {
+                $depot->setUsers(null);
             }
         }
 
