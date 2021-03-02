@@ -49,6 +49,7 @@ class Comptes
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     * @Groups ({"agence:write"})
      *
      */
     private $id;
@@ -77,7 +78,7 @@ class Comptes
     private $transactions;
 
     /**
-     * @ORM\OneToMany(targetEntity=Agences::class, mappedBy="compte")
+     * @ORM\OneToMany(targetEntity=Agences::class, mappedBy="compte",cascade={"persist"})
      *  @Groups ({"getOndepotUserCompt:read"})
      */
     private $agences;

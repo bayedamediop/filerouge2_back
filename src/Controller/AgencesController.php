@@ -57,12 +57,13 @@ class AgencesController extends AbstractController
      * )
      */
     public function creatAgence(Request $request, SerializerInterface $serialize,
-                             AgencesRepository $agencesRepository,ComptesRepository $comptesRepository,
+                         UserRepository $userRepository,    AgencesRepository $agencesRepository,ComptesRepository $comptesRepository,
                                 ProfilsRepository $profilsRepository,UserPasswordEncoderInterface $encoder
                              )
     {
         $json = json_decode($request->getContent());
         //dd($json);
+        $userCreat = $this->getUser();
 
         //verifions s'il faut crée le groupe oubien l'affecté des competences
         // dd($agences);
@@ -78,16 +79,14 @@ class AgencesController extends AbstractController
                 $newagence->setUserCreat($ucecreer);
                 $this->em->persist($newagence);
             }
-            for ($i = 0; $i < count($json->user); $i++) {
-                //creation de la/les competences
-                //$users = $this->serializer->denormalize($json->user, "App\Entity\User");
-                //dd($users);
+            if ($json->utilisateur) {
+       // dd($json->utilisateur);
                 $newuser = new User();
                 //dd($json->user[$i]->profil);
                 if($profilsRepository->find((int)$json->user[$i]->profil)){
                     $profil = $profilsRepository->find((int)$json->user[$i]->profil);
                     //  dd($profil);
-                    if ($profil->getLibelle() !== "UTILISATEUR"){
+                    if (($profil->getLibelle() !== "UTILISATEUR")){
                         return $this->json('cet profil est pas un utilisater');
                     }else{
                         $newuser->setProfils($profil);
@@ -118,6 +117,7 @@ class AgencesController extends AbstractController
             $newagence = new Agences();
             $newagence->setNumAgence(rand(9, 1000000000))
                 ->setAdresseAgence($json->adresse)
+                //->setNomAgence($json->nomAgence)
                 ->setStatut(false);
             for ($i = 0; $i < count($json->compte); $i++) {
                 $newcompte = new Comptes();
@@ -129,49 +129,51 @@ class AgencesController extends AbstractController
 
            // for ($i = 0; $i < count($json->userCreat); $i++) {
             //dd($json->userCreat);
-                if ($this->userRepository->find((int)$json->userCreat)) {
-                    //affectation la/les competences au groupe
-                    $ucecreer = $this->userRepository->find((int)$json->userCreat);
-                    //dd($ucecreer);
-                    $newagence->setUserCreat($ucecreer);
-                    $this->em->persist($newagence);
+            
+            if ($userRepository->find((int)$userCreat->getId())) {
 
+                $objet = ($userRepository->find((int)$userCreat->getId()));
+               // dd($objet);
+                $newagence->setUserCreat($objet);
+                $manage = $this->getDoctrine()->getManager();
+                $manage->persist($newagence);
                 //}
             }
-            //dd($json->user);
-            //$users = $serialize->deserialize($request->getContent(), User::class, 'json');
-           // dd($users);
+            //     if ($this->userRepository->find((int)$json->userCreat)) {
+            //         //affectation la/les competences au groupe
+            //         $ucecreer = $this->userRepository->find((int)$json->userCreat);
+            //         //dd($ucecreer);
+            //         $newagence->setUserCreat($ucecreer);
+            //         $this->em->persist($newagence);
 
+            //     //}
+            // }
+            if ($json->utilisateur) {
 
-            //$users->setProfile($this->profileRepository->findOneBy(['libelle'=>$profil])) ;
-
-            for ($i = 0; $i < count($json->user); $i++) {
-                //creation de la/les competences
-                //$users = $this->serializer->denormalize($json->user, "App\Entity\User");
-                //dd($users);
-                $newuser = new User();
-                //dd($json->user[$i]->profil);
-                 if($profilsRepository->find((int)$json->user[$i]->profil)){
-                     $profil = $profilsRepository->find((int)$json->user[$i]->profil);
-                   //  dd($profil);
-                     if ($profil->getLibelle() !== "UTILISATEUR"){
-                         return $this->json('cet id n est pas un utilisater');
-                     }else{
-                         $newuser->setProfils($profil);
-                     }
-                 }
-                $newuser->setEmail($json->user[$i]->email);
-                $newuser->setNom($json->user[$i]->nom);
-                $newuser->setPrenom($json->user[$i]->prenom);
-                $newuser->setPassword($json->user[$i]->password);
-                //$password = $json->getPassword();
-                //$users->setPassword($passwordEncoder->encodePassword($users,$password));
-                $newuser->setAdresse($json->user[$i]->adresse);
-                $newuser->setCni($json->user[$i]->cni);
-                $newuser->setPhone($json->user[$i]->phone);
-                $newuser->setArchivage($json->user[$i] = false);
-                $newagence->setUser($newuser);
-                $this->em->persist($newuser);
+                 
+               // dd($users->getProfils()->getLibelle());
+               //  if($profilsRepository->find((int)$json->user[$i]->profil)){
+                    //  $profil = $profilsRepository->find((int)$json->utilisateur);
+                    // //dd($profil->getLibelle());
+                    //  if (($profil->getLibelle() !== "ADMIN_PARTENAIRE")){
+                    //      return $this->json('cet id user n est pas un utilisater !!!');
+                    //  }else{
+                        $users=($userRepository->find((int)$json->utilisateur));
+                         $newagence->setUser($users);
+                     //}
+                 //}
+                // $newuser->setEmail($json->user[$i]->email);
+                // $newuser->setNom($json->user[$i]->nom);
+                // $newuser->setPrenom($json->user[$i]->prenom);
+                // $newuser->setPassword($json->user[$i]->password);
+                // //$password = $json->getPassword();
+                // //$users->setPassword($passwordEncoder->encodePassword($users,$password));
+                // $newuser->setAdresse($json->user[$i]->adresse);
+                // $newuser->setCni($json->user[$i]->cni);
+                // $newuser->setPhone($json->user[$i]->phone);
+                // $newuser->setArchivage($json->user[$i] = false);
+                // $newagence->setUser($newuser);
+                // $this->em->persist($newuser);
 
                 $this->em->persist($newagence);
             }

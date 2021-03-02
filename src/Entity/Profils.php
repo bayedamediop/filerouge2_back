@@ -24,7 +24,7 @@ class Profils
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups ({"user:read"})
+     * @Groups ({"userdepot:read"})
      */
     private $libelle;
 

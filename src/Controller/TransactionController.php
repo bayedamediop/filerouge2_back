@@ -12,7 +12,6 @@ use App\Repository\ComptesRepository;
 use App\Repository\TransactionsRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Faker\Provider\DateTime;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -63,6 +62,8 @@ class TransactionController extends AbstractController
                                      EntityManagerInterface $entityManager, UserRepository $userRepository,
                                      ComptesRepository $comptesRepository, ValidatorInterface $validator): JsonResponse
     {
+        $userConnecte = $this->getUser();
+      // dd($userConnecte->getProfils()); die;
         // $transaction =$serializer->deserialize($request->getContent(), Transactions::class, 'json');
         $transaction = json_decode($request->getContent(), 'json');
         //dd($transaction);
@@ -72,8 +73,7 @@ class TransactionController extends AbstractController
         $date = new \DateTime('now');
         //$code = $gneneCode . date_format($date, 'YmdHi');
         //dd($code);
-        $users = $this->getUser();
-
+    
 
         //appele fonction frais
 
@@ -87,71 +87,65 @@ class TransactionController extends AbstractController
         //dd($transaction);
         $slode = $this->getDoctrine()->getRepository(Comptes::class);
         $all = $slode->findAll();
+        $compt = ($comptesRepository->find((int)$userConnecte->getAgences()[0]->getCompte()->getId()));
+       // dd($compt->getSolde());
+       // if ($transaction['compte']) {
+            //$cmop = $transaction['compte'];
 
-        if ($transaction['compte']) {
-            $cmop = $transaction['compte'];
-
-            if ($comptesRepository->find((int)$cmop)) {
-                $objet = ($comptesRepository->find((int)$cmop));
+           // if ($comptesRepository->find((int)$cmop)) {
+                //$objet = ($comptesRepository->find((int)$cmop));
                 //dd($objet->getSolde());
-                if ($objet->getSolde() <= $transaction['montant']) {
+                if ($compt->getSolde() <= $transaction['montant']) {
                     $data = [
                         'status' => 500,
                         'message' => ('L\'etat de votre Compte ne vous permet d\'effectue cette transaction votre solde est: ' .
-                            $objet->getSolde() . ' et le montant de la transaction est ' .
+                            $compt->getSolde() . ' et le montant de la transaction est ' .
                             $transaction['montant'] . ' Desolé !!!!§§§§')
                     ];
 
                 }else{
                     $newtransac = new Transactions();
                     $newtransac->setDateDepot($date);
+                    // $Transaction->setUserTransaction($users);//le user qui a fais le depot
+                    $newtransac->setComission($fr);
+                    // dd($fr);
                     $newtransac->setComission($fr);
                     $newtransac->setCodeTransaction($code);
                     $newtransac->setFraisEtat($partEta);
                     $newtransac->setFraisSysteme($partSys);
-
+                    $newtransac->setFraisEnvoie($partDep);
+                    $newtransac->setFraisRetrait($partRet);
                     $newtransac->setMontant($transaction['montant']);
                     $entityManager->persist($newtransac);
 
-                    // creation de nouveau type transsaction;
-                      $newtype = new TypeTransaction();
-                    $newtype->setLibelle("depot")
-                          ->setFrais($partDep)
-                        ->setDateTransaction(new \DateTime());
-                    $newtransac->setTypeTransaction($newtype);
-                    $entityManager->persist($newtype);
-
+                    //dd($userConnecte->getAgences()[0]->getCompte()->getId());
                     //$mypart=$transaction->getTarifs()-$transaction->getPartDep();
-                    if ($transaction['compte']) {
+  //($transaction['compte'])
+            
                         // dd($transaction['compte']);
                         // dd($competencerepo->findBy(['id'=>(int)$json['competence']]));
-                        $cmop = $transaction['compte'];
+                       // $cmop = $transaction['compte'];
                         //dd($cmop);
                         // for ($i = 0; $i < count($cmop); $i++) {
-                        if ($comptesRepository->find((int)$cmop)) {
-                            $objet = ($comptesRepository->find((int)$cmop));
-                            // dd($objet);
-                            $objet->setSolde($objet->getSolde() - $transaction['montant']);
+                       // if ($comptesRepository->find((int))) {
+                            $objet = ($comptesRepository->find((int)$userConnecte->getAgences()[0]->getCompte()->getId()));
+                          // dd($objet->getSolde());
+                           $so= $objet->setSolde($objet->getSolde() - $transaction['montant']);
+                            //dd($so);
                             $objet->addTransaction($newtransac);
-
-                        }
-                        //}
                         $entityManager->persist($objet);
-                    }
-                    if ($transaction['user']) {
-                        // dd($competencerepo->findBy(['id'=>(int)$json['competence']]));
-                        $cmop = $transaction['user'];
-                        //dd($cmop);
-                        //for ($i = 0; $i < count($cmop); $i++) {
-                        if ($userRepository->find((int)$cmop)) {
-                            $objet = ($userRepository->find((int)$cmop));
-                            $newtransac->addUser($objet);
-                            $entityManager->persist($newtransac);
-                        }
-                        //}
+                
+                 //effectation de user qui fait la deposition de la transaction
+                
+                 if ($userRepository->find((int)$userConnecte->getId())) {
 
-                    }
-                    //dd($transaction['client']['nomComplet']);
+                    $objet = ($userRepository->find((int)$userConnecte->getId()));
+                   // dd($objet);
+                    $newtransac->setUserDepot($objet);
+                    $entityManager->persist($newtransac);
+                    //}
+                }
+              
                     for ($i = 0; $i < count($transaction['client']); $i++) {
                         //ccreation du client a envoie
                         $newclient = new Clirnts();
@@ -174,22 +168,17 @@ class TransactionController extends AbstractController
                     //mis a jour Du Compte
 
                     $entityManager->persist($newclient);
+
                     $entityManager->flush();
                     $data = [
                         'status' => 200,
                         'message' => 'Vous Avez Efeectue Une Operation de Transaction  De ' . $transaction['montant'] . ' Frais: ' . $fr .
-                            ' Voici Le Code De La Transaction ' . $code . ':'
+                            ' Voici Le Code De La Transaction ' . $code . ': '
                     ];
                 }
-            }
+           // }
             //}
-            $entityManager->persist($objet);
-        }else{
-            $data = [
-                'status' => 200,
-                'message' => 'Le compte n existe pas'
-            ];
-        }
+            //$entityManager->persist($objet);
 
 
         return new JsonResponse($data, 200);
@@ -225,17 +214,22 @@ class TransactionController extends AbstractController
      * )
      */
     public function retiret(Request $request,$code,TransactionsRepository $transactionsRepository,
+                                UserRepository $userRepository,
                            ClirntsRepository $clirntsRepository,ComptesRepository $comptesRepository, SerializerInterface $serializer)
     {
+        //dd('oki');
+       //dd($rett);
         $transation = $transactionsRepository->findTransaction($code);
-      // dd($transation);
-        //dd($transation->getMontant());
+       //dd($transation->getClientRecu()->getCni());
+        //dd($transation);
         $fr = $this->frais($transation->getMontant());
-        //dd($fr);
+
         $partRet = (20 * $fr) / 100;
+        $userConnecte = $this->getUser();
+        //dd($userConnecte);
         if ($transation) {
 
-            if ($transation->getStatut() === true) {
+            if ($transation->getDateRetrait() !== null) {
                 $data = [
                     'status' => 200,
                     'message' => 'Cete transation est est deja retire!!!! '
@@ -243,47 +237,44 @@ class TransactionController extends AbstractController
             } else {
                 $transation->setDateRetrait(new \DateTime());
                 $this->manage->persist($transation);
-                //dd($transation);
-                $newtype = new TypeTransaction();
-                $newtype->setLibelle("retrait")
-                    ->setFrais($partRet)
-                    ->setDateTransaction(new \DateTime());
-                $transation->setTypeTransaction($newtype);
-                $manage = $this->getDoctrine()->getManager();
-                $manage->persist($newtype);
-                $doonne = json_decode($request->getContent());
-                //dd($doonne);
-                if ($doonne->compte) {
-                    //dd($doonne->compte);
-                    //for ($i = 0; $i < count($cmop); $i++) {
-                        if ($comptesRepository->find((int)$doonne->compte)) {
-                            $objet = ($comptesRepository->find((int)$doonne->compte));
-                            //dd($objet->getSolde());
-                            $objet->setSolde($objet->getSolde() + $transation->getMontant());
-                            //dd($objet);
-                            $transation->setCopmte($objet);
-                        }
-                   // }
+                // user qui retire de l' argen
+               // dd($userConnecte->getId());
+                if ($userRepository->find((int)$userConnecte->getId())) {
+
+                    $objet = ($userRepository->find((int)$userConnecte->getId()));
+                   // dd($objet);
+                    $transation->setUserRetrait($objet);
                     $manage = $this->getDoctrine()->getManager();
                     $manage->persist($transation);
+                    //}
                 }
+                $objet = ($comptesRepository->find((int)$userConnecte->getAgences()[0]->getCompte()->getId()));
+                // dd($objet->getSolde());
+                 $solde = $objet->setSolde($objet->getSolde() + $transation->getMontant());
+                  //dd($so);
+                  $solde->addTransaction($transation);
+            
+                $manage = $this->getDoctrine()->getManager();
+                $manage->persist($solde);
+                $doonne = json_decode($request->getContent());
+                
+                    $manage = $this->getDoctrine()->getManager();
+                    $manage->persist($transation);
+              //  }
                 $doonneClient = json_decode($request->getContent(),'json');
-         // dd($doonneClient['client']);
-                if ($doonneClient['client']) {
-                    $objet = ($clirntsRepository->find((int)$doonneClient['client']));
-                           //dd($objet);
-//                    for ($i = 0; $i < count($doonneClient['client']); $i++) {
-//                       //dd( $doonneClient['client'][$i]['cni']);
-//                        $newclient=$transation->getClientRecu()->getCni($doonneClient['client'][$i]['cni']);
-//                        //ccreation du client a envoie
-//                       // $newclient = new Clirnts();
-//                        //$newclient->setNomComplet($doonneClient['client'][$i]['nomComplet']);
-//                       // $newclient->setPhone($doonneClient['client'][$i]['phone']);
-//                       // $newclient->$transation->getClientRecu()->getCni($newclient->setCni($doonneClient['client'][$i]['cni']));
-//                        $transation->ad($newclient);
-//                       $manage->persist($transation);
-                   //}
-                }
+               // dd();
+         
+              //  if ($doonneClient['client']) {
+                  for ($i=0; $i < count($doonneClient['client']); $i++) { 
+                   // dd();
+                    $objet = $transation->getClientRecu();
+                    $objet->setCni($doonneClient['client'][$i]['cni']);
+                    $manage = $this->getDoctrine()->getManager();
+                    $manage->persist($objet);
+                  }
+                   
+                           
+              //  }
                 $data = [
                     'status' => 200,
                     'message' => 'Vous Avez Efeectue Une Operation de retire '

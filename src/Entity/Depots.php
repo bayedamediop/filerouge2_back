@@ -12,8 +12,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * @ORM\Entity(repositoryClass=DepotsRepository::class)
  * @ApiResource(
- *           attributes={
- *         "security" = "(is_granted('ROLE_ADMIN') or is_granted('ROLE_CAISSIER'))",
+ *            attributes={
+ *         "security" = "(is_granted('ROLE_ADMIN'))",
  *      "security_message" = " OBBB ,vous n'avez pas accès a cette resource"
  *      },
  *      collectionOperations={

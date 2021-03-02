@@ -18,7 +18,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @ORM\Entity(repositoryClass=UserRepository::class)
  * @ApiResource(
  *           attributes={
- *         "security" = "(is_granted('ROLE_ADMIN') or is_granted('ROLE_FORMATEUR'))",
+ *         "security" = "(is_granted('ROLE_ADMIN'))",
  *      "security_message" = " OBBB ,vous n'avez pas accès a cette resource"
  *      },
  *      collectionOperations={
@@ -64,7 +64,8 @@ class User implements UserInterface
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      * @Groups ({"depot:write"})
-     * @Groups ({"userdepot:read"})
+     * @Groups ({"userdepot:read","agence:write"})
+     * @Groups ({"agence:write"})
      */
     private $id;
 
@@ -129,6 +130,7 @@ class User implements UserInterface
     /**
      * @ORM\ManyToOne(targetEntity=Profils::class, inversedBy="profil")
      * @ApiSubresource()
+     * @Groups ({"userdepot:read"})
      */
     private $profils;
 
@@ -145,15 +147,15 @@ class User implements UserInterface
     private $user;
 
     /**
-     * @ORM\ManyToMany(targetEntity=Transactions::class, mappedBy="user",cascade={"persist"})
-     */
-    private $transactions;
-
-    /**
      * @ORM\OneToMany(targetEntity=Agences::class, mappedBy="user",cascade={"persist"})
      * @Groups ({"userdepot:read"})
      */
     private $agences;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Transactions::class, mappedBy="userDepot")
+     */
+    private $transactions;
 
 
 
@@ -448,7 +450,7 @@ class User implements UserInterface
     {
         if (!$this->transactions->contains($transaction)) {
             $this->transactions[] = $transaction;
-            $transaction->addUser($this);
+            $transaction->setUserDepot($this);
         }
 
         return $this;
@@ -457,7 +459,10 @@ class User implements UserInterface
     public function removeTransaction(Transactions $transaction): self
     {
         if ($this->transactions->removeElement($transaction)) {
-            $transaction->removeUser($this);
+            // set the owning side to null (unless already changed)
+            if ($transaction->getUserDepot() === $this) {
+                $transaction->setUserDepot(null);
+            }
         }
 
         return $this;

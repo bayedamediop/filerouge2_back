@@ -14,6 +14,15 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
  *      },
  *      collectionOperations={
+ * "post"={
+ *                   "method"="POST",
+ *                    "path" = "/admin/agences",
+ *                       "normalization_context"={"groups"={"agence:read"}},
+ *                     "denormalization_context"={"groups"={"agence:write"}},
+ *                      " security" = "(is_granted('ROLE_ADMIN') or is_granted('ROLE_PARTENAIRE') )",
+ *                        "security_message" = " OBBB ,vous n'avez pas accès a cette resource"
+ *
+ *      },
  *          "get"={
  *                  "method" = "GET",
  *                  "path" = "/admin/users",
@@ -52,35 +61,43 @@ class Agences
 
     /**
      * @ORM\Column(type="integer")
-     *@Groups ({"getOndepotUserCompt:read","agence:read"})
+     *@Groups ({"getOndepotUserCompt:read","agence:read","agence:write"})
      */
     private $numAgence;
 
     /**
      * @ORM\Column(type="string", length=255)
-     *  @Groups ({"getOndepotUserCompt:read","agence:read"})
+     *  @Groups ({"getOndepotUserCompt:read","agence:read","agence:write"})
      */
     private $adresseAgence;
 
     /**
      * @ORM\Column(type="boolean")
      */
-    private $statut;
+    private $statut = false;
 
     /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="agences",cascade={"persist"})
+     *  @Groups ({"agence:write"})
      */
     private $user;
 
     /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="agences",cascade={"persist"})
+     *  @Groups ({"agence:write"})
      */
     private $userCreat;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Comptes::class, inversedBy="agences",cascade={"persist"})
+     * @ORM\ManyToOne(targetEntity=Comptes::class, inversedBy="agences")
+     * @Groups ({"agence:write"})
      */
     private $compte;
+    public function __construct()
+    {
+       $this->numAgence = rand(rand(9, 1000000000));
+       $this->getUser()->getId();
+    }
 
     public function getId(): ?int
     {

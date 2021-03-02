@@ -122,15 +122,19 @@ class Transactions
     private $clientRecu;
 
     /**
-     * @ORM\ManyToOne(targetEntity=TypeTransaction::class, inversedBy="typeTransaction")
-     * @Groups ({"numcompte:read"})
-     */
-    private $typeTransaction;
-
-    /**
      * @ORM\Column(type="boolean")
      */
     private $statut = true;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="transactions")
+     */
+    private $userDepot;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="transactions")
+     */
+    private $userRetrait;
 
     public function __construct()
     {
@@ -263,31 +267,6 @@ class Transactions
 
         return $this;
     }
-
-    /**
-     * @return Collection|User[]
-     */
-    public function getUser(): Collection
-    {
-        return $this->user;
-    }
-
-    public function addUser(User $user): self
-    {
-        if (!$this->user->contains($user)) {
-            $this->user[] = $user;
-        }
-
-        return $this;
-    }
-
-    public function removeUser(User $user): self
-    {
-        $this->user->removeElement($user);
-
-        return $this;
-    }
-
     /**
      * @return Collection|Clirnts[]
      */
@@ -336,17 +315,6 @@ class Transactions
         return $this;
     }
 
-    public function getTypeTransaction(): ?TypeTransaction
-    {
-        return $this->typeTransaction;
-    }
-
-    public function setTypeTransaction(?TypeTransaction $typeTransaction): self
-    {
-        $this->typeTransaction = $typeTransaction;
-
-        return $this;
-    }
 
     public function getStatut(): ?bool
     {
@@ -356,6 +324,30 @@ class Transactions
     public function setStatut(bool $statut): self
     {
         $this->statut = $statut;
+
+        return $this;
+    }
+
+    public function getUserDepot(): ?User
+    {
+        return $this->userDepot;
+    }
+
+    public function setUserDepot(?User $userDepot): self
+    {
+        $this->userDepot = $userDepot;
+
+        return $this;
+    }
+
+    public function getUserRetrait(): ?User
+    {
+        return $this->userRetrait;
+    }
+
+    public function setUserRetrait(?User $userRetrait): self
+    {
+        $this->userRetrait = $userRetrait;
 
         return $this;
     }

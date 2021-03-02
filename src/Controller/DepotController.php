@@ -46,45 +46,63 @@ class DepotController extends AbstractController
     public function creatdepot(Request $request, ComptesRepository $comRepository,
                                ComptesRepository $comptesRepository, UserRepository $userRepository, SerializerInterface $serializer)
     {
+        $usercon=$this->getUser();
+        //dd($usercon->getId());
         $json = json_decode($request->getContent(), 'json');
 
-        $slode = $this->getDoctrine()->getRepository(Comptes::class);
+       // $slode = $this->getDoctrine()->getRepository(Comptes::class);
         //dd($slode);
-        $all = $slode->findAll();
+       // $all = $slode->findAll();
         // dd($all);
         $ref = new Depots();
         $ref->setDateDepot(new \DateTime());
         $ref->setMontantDepot($json['montantDept']);
-        if ($json['user']) {
-            $cmop = $json['user'];
-            //dd($cmop);
+        //dd($);
+       
+            //$cmop = $json['user'];
+            //dd($usercon->getId());
             // for ($i=0; $i <count($cmop); $i++) {
-            if ($userRepository->find((int)$cmop)) {
-                $objet = ($userRepository->find((int)$cmop));
-                $ref->setUsers($objet);
-                $manage = $this->getDoctrine()->getManager();
-                $manage->persist($ref);
-                //}
-            }
-            $manage = $this->getDoctrine()->getManager();
-            $manage->persist($ref);
-        }
-        if ($json['compte']) {
+                if ($userRepository->find((int)$usercon->getId())) {
+                    //affectation la/les competences au groupe
+                    $ucecreer = $userRepository->find((int)$usercon->getId());
+                   //dd($ucecreer);
+                    $ref->setUsers($ucecreer);
+                    $manage = $this->getDoctrine()->getManager();
+                    $manage->persist($ref);
+                }
+          // }
+          //dd($json['montantDept']);
+         if ($json['compte']) {
             $cmop = $json['compte'];
-            for ($i = 0; $i < count($cmop); $i++) {
-                if ($comRepository->find((int)$cmop[$i])) {
-                    $objet = ($comRepository->find((int)$cmop[$i]));
-                    //dd($objet->getSolde());
-                    $objet->setSolde($objet->getSolde() + $json['montantDept']);
+            //dd($cmop);
+            //for ($i = 0; $i < count($cmop); $i++) {
+                if ($comRepository->find((int)$cmop)) {
+                    $objet = ($comRepository->find((int)$cmop));
                     //dd($objet);
-                    $ref->setCompte($objet);
+                  $soldes = ($objet->getSolde() + $json['montantDept']);  
+                  $objet->setSolde($soldes);
+                   $objet->addDepot($ref);
+                 
+                 
+                  //dd($objet);
+                   //dd($objet->setSolde($objet->getSolde() + $json['montantDept']));
+                   //$soldes->addDepot($ref);
+            
+                   $manage = $this->getDoctrine()->getManager();
+
+                   $manage->persist($ref);
+                  //$ref->persist($objet);
+                    
+                }else{
+                    return $this->json("id inexistant", 201);
                 }
             }
             $manage = $this->getDoctrine()->getManager();
             $manage->persist($ref);
-        }
+         //}
         $manage->flush();
-        return $this->json("success", 201);
+        
+    return $this->json("success", 201);
     }
 
 
