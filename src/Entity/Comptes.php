@@ -49,7 +49,7 @@ class Comptes
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
-     * 
+     *  @Groups ({"user:read"})
      *
      */
     private $id;
@@ -62,7 +62,7 @@ class Comptes
 
     /**
      * @ORM\Column(type="float")
-     *  @Groups ({"numcompte:read"})
+     *  @Groups ({"numcompte:read","user:read"})
      */
     private $solde;
     
@@ -82,7 +82,9 @@ class Comptes
 
     /**
      * @ORM\OneToMany(targetEntity=Agences::class, mappedBy="compte",cascade={"persist"})
-     *  @Groups ({"getOndepotUserCompt:read"})
+     *  @Groups ({"getOndepotUserCompt:read","user:read"})
+     * 
+     * 
      */
     private $agences;
 

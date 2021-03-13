@@ -18,8 +18,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @ORM\Entity(repositoryClass=UserRepository::class)
  * @ApiResource(
  *           attributes={
- *         "security" = "(is_granted('ROLE_ADMIN'))",
- *      "security_message" = " OBBB ,vous n'avez pas accès a cette resource"
+ *        
  *      },
  *      collectionOperations={
  *          "get"={
@@ -65,7 +64,7 @@ class User implements UserInterface
      * @ORM\Column(type="integer")
      * @Groups ({"depot:write"})
      * @Groups ({"userdepot:read","agence:write"})
-     * @Groups ({"agence:write"})
+     * @Groups ({"agence:write","user:read"})
      */
     private $id;
 
@@ -88,19 +87,19 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups ({"userdepot:read","getOndepotUserCompt:read","numcompte:read"})
+     * @Groups ({"userdepot:read","user:read","getOndepotUserCompt:read","numcompte:read"})
      */
     private $nom;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups ({"userdepot:read","getOndepotUserCompt:read","numcompte:read"})
+     * @Groups ({"userdepot:read","user:read","getOndepotUserCompt:read","numcompte:read"})
      */
     private $prenom;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups ({"userdepot:read","getOndepotUserCompt:read"})
+     * @Groups ({"userdepot:read","getOndepotUserCompt:read","user:read"})
      */
     private $phone;
 
@@ -112,13 +111,14 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="blob", nullable=true)
+     *  @Groups ({"user:read"})
      */
     private $avatar;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Groups ({"userdepot:read","getOndepotUserCompt:read"})
-
+     *  @Groups ({"user:read"})
      */
     private $adresse;
 
@@ -140,6 +140,12 @@ class User implements UserInterface
      */
     private $depots;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Agences::class, mappedBy="user",cascade={"persist"})
+     * @Groups ({"userdepot:read"})
+     */
+    private $agences;
+
 
     /**
      * @ORM\OneToMany(targetEntity=Depots::class, mappedBy="users")
@@ -147,16 +153,10 @@ class User implements UserInterface
     private $user;
 
     /**
-     * @ORM\OneToMany(targetEntity=Agences::class, mappedBy="user",cascade={"persist"})
-     * @Groups ({"userdepot:read"})
-     */
-    private $agences;
-
-    /**
      * @ORM\OneToMany(targetEntity=Transactions::class, mappedBy="userDepot")
+     * @Groups ({"user:read"})
      */
     private $transactions;
-
 
 
     public function __construct()
@@ -467,6 +467,5 @@ class User implements UserInterface
 
         return $this;
     }
-
 
 }

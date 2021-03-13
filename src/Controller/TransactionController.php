@@ -2,24 +2,26 @@
 
 namespace App\Controller;
 
+use App\Entity\Tarifs;
 use App\Entity\Clirnts;
 use App\Entity\Comptes;
-use App\Entity\Tarifs;
 use App\Entity\Transactions;
 use App\Entity\TypeTransaction;
+use App\Repository\UserRepository;
 use App\Repository\ClirntsRepository;
 use App\Repository\ComptesRepository;
-use App\Repository\TransactionsRepository;
-use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\JsonResponse;
+use function Symfony\Component\String\s;
+use App\Controller\TransactionController;
+use App\Repository\TransactionsRepository;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Serializer\SerializerInterface;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
-use function Symfony\Component\String\s;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 class TransactionController extends AbstractController
 {
@@ -27,10 +29,13 @@ class TransactionController extends AbstractController
     private $manage;
     private $transactionsRepository;
     private $serializer;
+    private $tokenInterface;
 
-    public function __construct(EntityManagerInterface $manage, TransactionsRepository $transactionsRepository)
+    public function __construct(EntityManagerInterface $manage, 
+    TransactionsRepository $transactionsRepository)
     {
         $this->manage = $manage;
+       // $this->tokenInterface = $tokenInterface;
         $this->transactionsRepository = $transactionsRepository;
     }
 
@@ -60,10 +65,15 @@ class TransactionController extends AbstractController
      */
     public function creatTransaction(Request $request, SerializerInterface $serializer,
                                      EntityManagerInterface $entityManager, UserRepository $userRepository,
-                                     ComptesRepository $comptesRepository, ValidatorInterface $validator): JsonResponse
+                                     ComptesRepository $comptesRepository, ValidatorInterface $validator,TokenStorageInterface $token
+                                 ): JsonResponse
     {
-        $userConnecte = $this->getUser();
-      // dd($userConnecte->getProfils()); die;
+        //$userConnecte = $this->getUser();
+        $userConnecte = $token->getToken()->getUser();
+        //$userId = $this->get('security.context')->getToken()->getUser()->getId();
+        //dd($userConnect);
+
+       //dd($userConnecte->getTransactions()); die;
         // $transaction =$serializer->deserialize($request->getContent(), Transactions::class, 'json');
         $transaction = json_decode($request->getContent(), 'json');
         //dd($transaction);
@@ -87,8 +97,9 @@ class TransactionController extends AbstractController
         //dd($transaction);
         $slode = $this->getDoctrine()->getRepository(Comptes::class);
         $all = $slode->findAll();
+        //dd($userConnecte->getAgences()[0])->getId();
         $compt = ($comptesRepository->find((int)$userConnecte->getAgences()[0]->getCompte()->getId()));
-       // dd($compt->getSolde());
+        //dd($compt);
        // if ($transaction['compte']) {
             //$cmop = $transaction['compte'];
 
@@ -118,16 +129,6 @@ class TransactionController extends AbstractController
                     $newtransac->setMontant($transaction['montant']);
                     $entityManager->persist($newtransac);
 
-                    //dd($userConnecte->getAgences()[0]->getCompte()->getId());
-                    //$mypart=$transaction->getTarifs()-$transaction->getPartDep();
-  //($transaction['compte'])
-            
-                        // dd($transaction['compte']);
-                        // dd($competencerepo->findBy(['id'=>(int)$json['competence']]));
-                       // $cmop = $transaction['compte'];
-                        //dd($cmop);
-                        // for ($i = 0; $i < count($cmop); $i++) {
-                       // if ($comptesRepository->find((int))) {
                             $objet = ($comptesRepository->find((int)$userConnecte->getAgences()[0]->getCompte()->getId()));
                           // dd($objet->getSolde());
                            $so= $objet->setSolde($objet->getSolde() - $transaction['montant'] + $partDep);
@@ -145,25 +146,31 @@ class TransactionController extends AbstractController
                     $entityManager->persist($newtransac);
                     //}
                 }
+                    $newclient = $serializer->denormalize($transaction['client'], Clirnts::class);
+                    $newclient1 = $serializer->denormalize($transaction['client_recu'], Clirnts::class);
+                    $entityManager->persist($newclient);
+                    $entityManager->persist($newclient1);
+                    $newtransac->setClientEnvoie($newclient);
+                    $newtransac->setClientRecu($newclient1);
               
-                    for ($i = 0; $i < count($transaction['client']); $i++) {
-                        //ccreation du client a envoie
-                        $newclient = new Clirnts();
-                        $newclient->setNomComplet($transaction['client'][$i]['nomComplet']);
-                        $newclient->setPhone($transaction['client'][$i]['phone']);
-                        $newclient->setCni($transaction['client'][$i]['cni']);
-                        $newtransac->setClientEnvoie($newclient);
-                        $entityManager->persist($newclient);
-                    }
-                    for ($i = 0; $i < count($transaction['client_recu']); $i++) {
-                        //ccreation du client a envoie
-                        $newclient = new Clirnts();
-                        $newclient->setNomComplet($transaction['client_recu'][$i]['nomComplet']);
-                        $newclient->setPhone($transaction['client_recu'][$i]['phone']);
-                       // $newclient->setCni($transaction['client'][$i]['cni']);
-                        $newtransac->setClientRecu($newclient);
-                        $entityManager->persist($newclient);
-                    }
+                    // for ($i = 0; $i < count($transaction['client']); $i++) {
+                    //     //ccreation du client a envoie
+                    //     $newclient = new Clirnts();
+                    //     $newclient->setNomComplet($transaction['client'][$i]['nomComplet']);
+                    //     $newclient->setPhone($transaction['client'][$i]['phone']);
+                    //     $newclient->setCni($transaction['client'][$i]['cni']);
+                    //     $newtransac->setClientEnvoie($newclient);
+                    //     $entityManager->persist($newclient);
+                    // }
+                    // for ($i = 0; $i < count($transaction['client_recu']); $i++) {
+                    //     //ccreation du client a envoie
+                    //     $newclient = new Clirnts();
+                    //     $newclient->setNomComplet($transaction['client_recu'][$i]['nomComplet']);
+                    //     $newclient->setPhone($transaction['client_recu'][$i]['phone']);
+                    //    // $newclient->setCni($transaction['client'][$i]['cni']);
+                    //     $newtransac->setClientRecu($newclient);
+                    //     $entityManager->persist($newclient);
+                    // }
                     // dd($mypart);
                     //mis a jour Du Compte
 

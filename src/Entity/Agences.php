@@ -17,9 +17,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  * "post"={
  *                   "method"="POST",
  *                    "path" = "/admin/agences",
- *                       "normalization_context"={"groups"={"agence:read"}},
  *                     "denormalization_context"={"groups"={"agence:write"}},
- *                      " security" = "(is_granted('ROLE_ADMIN') or is_granted('ROLE_PARTENAIRE') )",
  *                        "security_message" = " OBBB ,vous n'avez pas accès a cette resource"
  *
  *      },
@@ -94,8 +92,8 @@ class Agences
     private $compte;
     public function __construct()
     {
-       $this->numAgence = rand(rand(9, 1000000000));
-       $this->getUser()->getId();
+       $this->numAgence = rand(9,1000000000);
+      // $this->getUser()->getId();
     }
 
     public function getId(): ?int

@@ -2,11 +2,22 @@
 
 namespace App\Entity;
 
-use App\Repository\TarifsRepository;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\TarifsRepository;
+use ApiPlatform\Core\Annotation\ApiResource;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=TarifsRepository::class)
+ * @ApiResource(
+ *          collectionOperations={
+ *  "get"={
+ *                  "method" = "GET",
+ *                  "path" = "/admin/tarifs",
+ *                  "normalization_context"={"groups"={"tarif:read"}}
+ *                  },
+ *                  },
+ * )
  */
 class Tarifs
 {
@@ -19,16 +30,19 @@ class Tarifs
 
     /**
      * @ORM\Column(type="integer")
+     * @Groups ({"tarif:read"})
      */
     private $born_inf;
 
     /**
      * @ORM\Column(type="integer")
+     * @Groups ({"tarif:read"})
      */
     private $born_supp;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups ({"tarif:read"})
      */
     private $frais;
 

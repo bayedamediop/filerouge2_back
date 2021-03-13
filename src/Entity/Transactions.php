@@ -102,6 +102,7 @@ class Transactions
 
     /**
      * @ORM\ManyToOne(targetEntity=Comptes::class, inversedBy="transactions",cascade={"persist"})
+     * @Groups ({"user:read"})
      */
     private $copmte;
 

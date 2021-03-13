@@ -81,30 +81,15 @@ class AgencesController extends AbstractController
             }
             if ($json->utilisateur) {
        // dd($json->utilisateur);
-                $newuser = new User();
-                //dd($json->user[$i]->profil);
-                if($profilsRepository->find((int)$json->user[$i]->profil)){
-                    $profil = $profilsRepository->find((int)$json->user[$i]->profil);
-                    //  dd($profil);
-                    if (($profil->getLibelle() !== "UTILISATEUR")){
-                        return $this->json('cet profil est pas un utilisater');
-                    }else{
-                        $newuser->setProfils($profil);
-                    }
-                }
-                $newuser->setEmail($json->user[$i]->email);
-                $newuser->setNom($json->user[$i]->nom);
-                $newuser->setPrenom($json->user[$i]->prenom);
-                $newuser->setPassword($json->user[$i]->password);
-                //$password = $json->getPassword();
-                //$users->setPassword($passwordEncoder->encodePassword($users,$password));
-                $newuser->setAdresse($json->user[$i]->adresse);
-                $newuser->setCni($json->user[$i]->cni);
-                $newuser->setPhone($json->user[$i]->phone);
-                $newuser->setArchivage($json->user[$i] = false);
-                $newagence->setUser($newuser);
-                $this->em->persist($newuser);
-
+                $cmop = explode(' ',$json['utilisateur']);
+         for ($i=0; $i < count($cmop); $i++) { 
+            if($userRepository->find((int)$cmop[$i])){
+               $objet=($userRepository->find((int)$cmop[$i]));
+               $newagence->setUser($objet);
+              
+            }
+           
+         }
                 $this->em->persist($newagence);
             }
 
