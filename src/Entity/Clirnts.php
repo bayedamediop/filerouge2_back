@@ -2,10 +2,11 @@
 
 namespace App\Entity;
 
-use App\Repository\ClirntsRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\ClirntsRepository;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=ClirntsRepository::class)
@@ -21,16 +22,19 @@ class Clirnts
 
     /**
      * @ORM\Column(type="string", length=255,nullable=true)
+     *  @Groups ({"transactionById:read"})
      */
     private $nomComplet;
 
     /**
      * @ORM\Column(type="string", length=255,nullable=true)
+     *  @Groups ({"transactionById:read"})
      */
     private $phone;
 
     /**
      * @ORM\Column(type="string", length=255,nullable=true)
+     *  @Groups ({"transactionById:read"})
      */
     private $cni;
 

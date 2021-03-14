@@ -191,6 +191,33 @@ class TransactionController extends AbstractController
         return new JsonResponse($data, 200);
 
     }
+    // ___________________________calcule frais__________________________
+    
+ // ___________________________calcule frais__________________________
+
+    /**
+     * @Route (
+     *     name="calculerfrais",
+     *      path="/api/admin/frais",
+     *      methods={"GET"},
+     *     defaults={
+     *           "__controller"="App\Controller\TransactionController::calculerfrais",
+     *           "__api_ressource_class"=Transactions::class,
+     *           "__api_collection_operation_name"="calculer_frais"
+     *         }
+     * )
+     */
+    public function calculerfrais( Request $request)
+    {
+        $frais = json_decode($request->getContent(), 'json');
+      //dd($frais['montant']);
+        $frai = $this->frais($frais['montant']);
+        //dd($frai);
+        return $this->json($frai,200);
+    }
+
+
+
 
     public function frais($montant)
     {
@@ -205,6 +232,33 @@ class TransactionController extends AbstractController
         }
     }
 
+     //_________________ recherche un transaction via code de transaction_______________________________
+
+    /**
+     * @Route (
+     *     name="recherchetransaction",
+     *      path="/api/admin/transactions/{code}",
+     *      methods={"GET"},
+     *     defaults={
+     *           "__controller"="App\Controller\TransactionController::recherchetransaction",
+     *           "__api_ressource_class"=Transactions::class,
+     *           "__api_collection_operation_name"="recherche_transaction"
+     *         }
+     * )
+     */
+    public function recherchetransaction(Request $request,$code,TransactionsRepository $transactionsRepository,
+                                UserRepository $userRepository,
+                           ClirntsRepository $clirntsRepository,ComptesRepository $comptesRepository,
+                            SerializerInterface $serializer,TokenStorageInterface $token)
+    {
+        //dd('oki');
+       //dd($rett);
+        $transation = $transactionsRepository->findTransaction($code);
+       //dd($transation->getClientRecu()->getCni());
+        //dd($transation);
+        //return new JsonResponse($transation,200);
+        return $this->json($transation,200);
+    }
 
     //_________________ recupre un transaction via code de transaction_______________________________
 
@@ -222,7 +276,8 @@ class TransactionController extends AbstractController
      */
     public function retiret(Request $request,$code,TransactionsRepository $transactionsRepository,
                                 UserRepository $userRepository,
-                           ClirntsRepository $clirntsRepository,ComptesRepository $comptesRepository, SerializerInterface $serializer)
+                           ClirntsRepository $clirntsRepository,ComptesRepository $comptesRepository,
+                            SerializerInterface $serializer,TokenStorageInterface $token)
     {
         //dd('oki');
        //dd($rett);
@@ -232,7 +287,7 @@ class TransactionController extends AbstractController
         $fr = $this->frais($transation->getMontant());
 
         $partRet = (20 * $fr) / 100;
-        $userConnecte = $this->getUser();
+        $userConnecte = $token->getToken()->getUser();
         //dd($userConnecte);
         if ($transation) {
 
@@ -311,53 +366,55 @@ class TransactionController extends AbstractController
      *         }
      * )
      */
-    public function deletTransaction(Request $request, $code,  TransactionsRepository $transactionsRepository,
-                    EntityManagerInterface $manage, ComptesRepository $comptesRepository){
-        $transation = $transactionsRepository->findTransaction($code);
-        $usedepot=$transation->getUserDepot()->getId();
-        $userConnect=$this->getUser()->getId();
-       // dd($transation->getDateRetrait());
-         //dd($transation->getCopmte()->getSolde());
+    // public function deletTransaction(Request $request, $code,  TransactionsRepository $transactionsRepository,
+    //                 EntityManagerInterface $manage, ComptesRepository $comptesRepository){
+    //     $transation = $transactionsRepository->findTransaction($code);
+    //     //dd($transaction);
+    //     $usedepot=$transation->getUserDepot()->getId();
+    //     dd($userdepot);
+    //     $userConnect=$this->getUser()->getId();
+    //    // dd($transation->getDateRetrait());
+    //      //dd($transation->getCopmte()->getSolde());
 
-       //$ $transation->getMontant()[0];
-        //dd($transation->getMontant());
-        if ($userConnect === $usedepot ) {
-            if ($transation->getDateRetrait() !== null){
-              // dd( $transation->setFraisRetrait());
-                return $this->json("Cette code de Transaction est deja retiret!!!");
-            }else{
-                $transation->getCopmte()->setSolde($transation->getCopmte()->getSolde()-$transation->getMontant());
-                $transation->setFraisEtat(0.0) ;
-                $transation->setDateRetrait(new \DateTime()) ;
-                $transation->setFraisRetrait(0) ;
-                $transation->setFraisSysteme(0.0) ;
-                 $manage->persist($transation);
+    //    //$ $transation->getMontant()[0];
+    //     //dd($transation->getMontant());
+    //     if ($userConnect === $usedepot ) {
+    //         if ($transation->getDateRetrait() !== null){
+    //           // dd( $transation->setFraisRetrait());
+    //             return $this->json("Cette code de Transaction est deja retiret!!!");
+    //         }else{
+    //             $transation->getCopmte()->setSolde($transation->getCopmte()->getSolde()-$transation->getMontant());
+    //             $transation->setFraisEtat(0.0) ;
+    //             $transation->setDateRetrait(new \DateTime()) ;
+    //             $transation->setFraisRetrait(0) ;
+    //             $transation->setFraisSysteme(0.0) ;
+    //              $manage->persist($transation);
                 
-            }
-            $manage->flush();
-            $data = [
-                'status' => 200,
-                'message' => 'Cete transation est annuler avec success!!!! '
-            ];
-        }else {
-            $data = [
-                'status' => 200,
-                'message' => 'Desole vous ne pouvez pas cette transactio!!! '
-            ];
-        }
-    //    $delete=($transation->getMontantDepot());
-    //       $solde= ($transation->getCompte()->getSolde());
-    //       $result= $transation->getCompte()->setSolde($solde - $delete) ;
-    //        $manage->persist($result);
-    //        $transation->getCompte()->removeDepot($transation);
-    //      $transation->getUsers()->removeDepot($transation);
-    //     // $transation->removeDepot($transation);
-    //        $manage->remove($transation);
+    //         }
+    //         $manage->flush();
+    //         $data = [
+    //             'status' => 200,
+    //             'message' => 'Cete transation est annuler avec success!!!! '
+    //         ];
+    //     }else {
+    //         $data = [
+    //             'status' => 200,
+    //             'message' => 'Desole vous ne pouvez pas cette transactio!!! '
+    //         ];
+    //     }
+    // //    $delete=($transation->getMontantDepot());
+    // //       $solde= ($transation->getCompte()->getSolde());
+    // //       $result= $transation->getCompte()->setSolde($solde - $delete) ;
+    // //        $manage->persist($result);
+    // //        $transation->getCompte()->removeDepot($transation);
+    // //      $transation->getUsers()->removeDepot($transation);
+    // //     // $transation->removeDepot($transation);
+    // //        $manage->remove($transation);
 
-    //        $manage->flush();
-        // dd($transation);
-        return new JsonResponse($data, 200);
-    }
+    // //        $manage->flush();
+    //     // dd($transation);
+    //     return new JsonResponse($data, 200);
+    // }
 
 }
 

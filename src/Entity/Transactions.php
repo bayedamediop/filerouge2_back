@@ -13,8 +13,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  * @ORM\Entity(repositoryClass=TransactionsRepository::class)
  * @ApiResource(
  *           attributes={
- *         "security" = "(is_granted('ADMIN_PARTENAIRE') or is_granted('UTILISATEUR'))",
- *      "security_message" = " OBBB ,vous n'avez pas accès a cette resource"
+ *  
  *      },
  *      collectionOperations={
  *          "get"={
@@ -24,6 +23,9 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *                  },
  *          "add_transaction"={
  *                  "route_name"="creatTransaction",
+ *              },
+ *            "calculer_frais"={
+ *                  "route_name"="calculerfrais",
  *              }
  *      },
  *     itemOperations={
@@ -37,6 +39,10 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *                  "method" = "GET",
  *                  "path" = "/admin/comptes/{id}",
  *                  "normalization_context"={"groups"={"cmopte:read"}}
+ *                  },
+ *         "recherche_transaction"={
+ *                  "route_name"="recherchetransaction",
+ *                  "normalization_context"={"groups"={"transactionById:read"}}
  *                  },
  *      },
  *     )
@@ -52,20 +58,21 @@ class Transactions
 
     /**
      * @ORM\Column(type="float")
-     * @Groups ({"numcompte:read","agence:read"})
+     * @Groups ({"numcompte:read","agence:read","transactionById:read"})
+     * 
      */
     private $montant;
 
     /**
      * @ORM\Column(type="date",nullable=true)
-     *  @Groups ({"agence:read"})
+     *  @Groups ({"agence:read","transactionById:read"})
      */
 
     private $dateDepot;
 
     /**
      * @ORM\Column(type="date",nullable=true)
-     *  @Groups ({"agence:read"})
+     *  @Groups ({"agence:read","transactionById:read"})
      */
     private $dateRetrait;
 
@@ -114,16 +121,20 @@ class Transactions
 
     /**
      * @ORM\ManyToMany(targetEntity=Clirnts::class, inversedBy="transactions",cascade={"persist"})
+     * 
+     * @Groups ({"transactionById:read"})
      */
     private $client;
 
     /**
      * @ORM\ManyToOne(targetEntity=Clirnts::class, inversedBy="transaction")
+     *  @Groups ({"transactionById:read"})
      */
     private $clientEnvoie;
 
     /**
      * @ORM\ManyToOne(targetEntity=Clirnts::class, inversedBy="transaction")
+     *  @Groups ({"transactionById:read"})
      */
     private $clientRecu;
 
