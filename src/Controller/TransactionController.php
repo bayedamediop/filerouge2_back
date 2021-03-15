@@ -254,10 +254,17 @@ class TransactionController extends AbstractController
         //dd('oki');
        //dd($rett);
         $transation = $transactionsRepository->findTransaction($code);
-       //dd($transation->getClientRecu()->getCni());
-        //dd($transation);
-        //return new JsonResponse($transation,200);
-        return $this->json($transation,200);
+        if ($transation) {
+
+            if ($transation->getDateRetrait() !== null) {
+                return $this->json('cette transaction est deja retiret',400);
+            } else {
+                return $this->json($transation,200);
+             }
+        }else {
+            return $this->json('ce code de transaction n est pas correcte !!!!',400);
+         }
+        
     }
 
     //_________________ recupre un transaction via code de transaction_______________________________
@@ -284,13 +291,14 @@ class TransactionController extends AbstractController
         $transation = $transactionsRepository->findTransaction($code);
        //dd($transation->getClientRecu()->getCni());
         //dd($transation);
-        $fr = $this->frais($transation->getMontant());
+           
 
-        $partRet = (20 * $fr) / 100;
+       
         $userConnecte = $token->getToken()->getUser();
         //dd($userConnecte);
         if ($transation) {
-
+            $fr = $this->frais($transation->getMontant());
+            $partRet = (20 * $fr) / 100;
             if ($transation->getDateRetrait() !== null) {
                 $data = [
                     'status' => 200,
@@ -311,7 +319,7 @@ class TransactionController extends AbstractController
                     //}
                 }
                 $objet = ($comptesRepository->find((int)$userConnecte->getAgences()[0]->getCompte()->getId()));
-                // dd($objet->getSolde());
+                //dd($objet);
                  $solde = $objet->setSolde($objet->getSolde() + $transation->getMontant() +$partRet);
                   //dd($so);
                   $solde->addTransaction($transation);
@@ -324,16 +332,21 @@ class TransactionController extends AbstractController
                     $manage->persist($transation);
               //  }
                 $doonneClient = json_decode($request->getContent(),'json');
-               // dd();
-         
+             //dd($doonneClient);
+               $newclient = $serializer->denormalize($doonneClient, Clirnts::class);
+               //$newclient1 = $serializer->denormalize($transaction['client_recu'], Clirnts::class);
+               //$entityManager->persist($newclient);
+              // $entityManager->persist($newclient1);
+               $manage = $this->getDoctrine()->getManager();
+                  $manage->persist($newclient);
+               //$newtransac->setClientEnvoie($newclient);
+              // $newtransac->setClientRecu($newclient1);
               //  if ($doonneClient['client']) {
-                  for ($i=0; $i < count($doonneClient['client']); $i++) { 
-                   // dd();
-                    $objet = $transation->getClientRecu();
-                    $objet->setCni($doonneClient['client'][$i]['cni']);
-                    $manage = $this->getDoctrine()->getManager();
-                    $manage->persist($objet);
-                  }
+                //   for ($i=0; $i < count($doonneClient['client']); $i++) { 
+                //    // dd();
+                //     $objet = $transation->getClientRecu();
+                //     $objet->setCni($doonneClient['client'][$i]['cni']);
+                //   }
                    
                            
               //  }
