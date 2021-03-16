@@ -209,11 +209,9 @@ class TransactionController extends AbstractController
      */
     public function calculerfrais( Request $request)
     {
-        $frais = json_decode($request->getContent(), 'json');
-      //dd($frais['montant']);
-        $frai = $this->frais($frais['montant']);
-        //dd($frai);
-        return $this->json($frai,200);
+        $objet = json_decode($request->getContent(), 'json');
+        
+        return $this->json($this->frais($objet['montant']),200);
     }
 
 
@@ -428,6 +426,38 @@ class TransactionController extends AbstractController
     //     // dd($transation);
     //     return new JsonResponse($data, 200);
     // }
+
+    //_________________ les  transactions d un compte_______________________________
+
+    /**
+     * @Route (
+     *     name="transationduncomte",
+     *      path="/api/admin/transactions/{id}",
+     *      methods={"GET"},
+     *     defaults={
+     *           "__controller"="App\Controller\TransactionController::transationduncomte",
+     *           "__api_ressource_class"=Transactions::class,
+     *           "__api_collection_operation_name"="transationd_uncomte"
+     *         }
+     * )
+     */
+    public function transationduncomte(Request $request,$code,TransactionsRepository $transactionsRepository,
+                                UserRepository $userRepository,
+                          TokenStorageInterface $token)
+    {
+        //dd('oki');
+       //dd($rett);
+       $userConnecte = $token->getToken()->getUser()->getId();
+       $objettransaction = ($userRepository->find((int)$userConnecte));
+       dd($objettransaction);
+       //dd($transation->getClientRecu()->getCni());
+        //dd($transation);
+           
+
+       
+        
+        //dd($userConnecte);
+    }
 
 }
 

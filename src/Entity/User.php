@@ -46,6 +46,13 @@ use Symfony\Component\Validator\Constraints as Assert;
  *              "access_control"="(is_granted('ROLE_ADMIN') )",
  *              "deserialize"= false,
  *          },
+ * "mesTransactions":{
+ *           "method":"GET",
+ *          "path":"/admin/users/{id}/transaction",
+ *             "normalization_context"={"groups"={"mesTransactions:read"}}
+
+ *          },
+ *         
  * },
  * )
  * @UniqueEntity ("email",
@@ -87,13 +94,13 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups ({"userdepot:read","user:read","getOndepotUserCompt:read","numcompte:read"})
+     * @Groups ({"userdepot:read","user:read","getOndepotUserCompt:read","numcompte:read","mesTransactions:read"})
      */
     private $nom;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups ({"userdepot:read","user:read","getOndepotUserCompt:read","numcompte:read"})
+     * @Groups ({"userdepot:read","user:read","getOndepotUserCompt:read","numcompte:read","mesTransactions:read"})
      */
     private $prenom;
 
@@ -154,7 +161,7 @@ class User implements UserInterface
 
     /**
      * @ORM\OneToMany(targetEntity=Transactions::class, mappedBy="userDepot")
-     * @Groups ({"user:read"})
+     * @Groups ({"user:read","mesTransactions:read"})
      */
     private $transactions;
 

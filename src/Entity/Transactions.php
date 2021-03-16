@@ -26,7 +26,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *              },
  *            "calculer_frais"={
  *                  "route_name"="calculerfrais",
- *              }
+ *              },
+ *    
  *      },
  *     itemOperations={
  *          "retiret_Transaction"={
@@ -65,14 +66,14 @@ class Transactions
 
     /**
      * @ORM\Column(type="date",nullable=true)
-     *  @Groups ({"agence:read","transactionById:read"})
+     *  @Groups ({"agence:read","transactionById:read","mesTransactions:read"})
      */
 
     private $dateDepot;
 
     /**
      * @ORM\Column(type="date",nullable=true)
-     *  @Groups ({"agence:read","transactionById:read"})
+     *  @Groups ({"agence:read","transactionById:read","mesTransactions:read"})
      */
     private $dateRetrait;
 
@@ -128,13 +129,13 @@ class Transactions
 
     /**
      * @ORM\ManyToOne(targetEntity=Clirnts::class, inversedBy="transaction")
-     *  @Groups ({"transactionById:read"})
+     *  @Groups ({"transactionById:read","mesTransactions:read"})
      */
     private $clientEnvoie;
 
     /**
      * @ORM\ManyToOne(targetEntity=Clirnts::class, inversedBy="transaction")
-     *  @Groups ({"transactionById:read"})
+     *  @Groups ({"transactionById:read","mesTransactions:read"})
      */
     private $clientRecu;
 

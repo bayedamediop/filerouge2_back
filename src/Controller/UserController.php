@@ -1,22 +1,23 @@
 <?php
 
 namespace App\Controller;
-use ApiPlatform\Core\Filter\Validator\ValidatorInterface;
-use App\Entity\Profils;
 use App\Entity\User;
-use App\Repository\ProfilsRepository;
-use App\Repository\UserRepository;
+use App\Entity\Profils;
 use App\Service\UserService;
+use App\Repository\UserRepository;
+use App\Repository\ProfilsRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Core\Security;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
-use Symfony\Component\Security\Core\Security;
-use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Serializer\SerializerInterface;
+use ApiPlatform\Core\Filter\Validator\ValidatorInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 class UserController extends AbstractController
 {
@@ -167,5 +168,34 @@ public function putUserId($id,UserService $service, Request $request,
     public function logout()
     {
         throw new \LogicException('This method can be blank - it will be intercepted by the logout key on your firewall.');
+    }
+    /**
+     * @Route (
+     *     name="transationduncomte",
+     *      path="/api/admin/transactions",
+     *      methods={"GET"},
+     *     defaults={
+     *           "__controller"="App\Controller\UserController::transationduncomte",
+     *           "__api_ressource_class"=User::class,
+     *           "__api_collection_operation_name"="mesTransactions"
+     *         }
+     * )
+     */
+    public function transationduncomte(Request $request,
+                                UserRepository $userRepository,
+                          TokenStorageInterface $token)
+    {
+        //dd('oki');
+       //dd($rett);
+       $userConnecte = $token->getToken()->getUser()->getId();
+       //dd($userConnecte);
+       $objettransaction = ($userRepository->find((int)$userConnecte));
+       //dd($objettransaction);
+       //dd($transation->getClientRecu()->getCni());
+        //dd($transation);
+           
+
+        return $this->json($objettransaction,200,[]  );      
+        //dd($userConnecte);
     }
 }
