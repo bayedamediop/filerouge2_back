@@ -44,5 +44,15 @@ class TransactionsRepository extends ServiceEntityRepository
             ->getOneOrNullResult();
 
     }
+    public function findUserDepot($value): ?Transactions
+    {
+        return $this->createQueryBuilder('t')
+            ->andWhere('t.userDepot = :val')
+            ->setParameter('val', $value)
+            ->getQuery()
+            ->getOneOrNullResult();
+
+    }
+    
 
 }

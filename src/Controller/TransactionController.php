@@ -131,7 +131,7 @@ class TransactionController extends AbstractController
 
                             $objet = ($comptesRepository->find((int)$userConnecte->getAgences()[0]->getCompte()->getId()));
                           // dd($objet->getSolde());
-                           $so= $objet->setSolde($objet->getSolde() - $transaction['montant'] + $partDep);
+                           $objet->setSolde($objet->getSolde() - $transaction['montant'] + $partDep);
                             //dd($so);
                             $objet->addTransaction($newtransac);
                         $entityManager->persist($objet);
@@ -141,9 +141,9 @@ class TransactionController extends AbstractController
                  if ($userRepository->find((int)$userConnecte->getId())) {
 
                     $objet = ($userRepository->find((int)$userConnecte->getId()));
-                   // dd($objet);
-                    $newtransac->setUserDepot($objet);
-                    $entityManager->persist($newtransac);
+//                   // dd($objet);
+//                    $newtransac->setUserDepot($objet);
+//                    $entityManager->persist($newtransac);
                     //}
                 }
                     $newclient = $serializer->denormalize($transaction['client'], Clirnts::class);
@@ -458,6 +458,7 @@ class TransactionController extends AbstractController
         
         //dd($userConnecte);
     }
+
 
 }
 

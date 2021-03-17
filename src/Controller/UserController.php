@@ -198,4 +198,51 @@ public function putUserId($id,UserService $service, Request $request,
         return $this->json($objettransaction,200,[]  );      
         //dd($userConnecte);
     }
+
+    /**
+     * @Route (
+     *     name="findTransactiondepot",
+     *      path="/api/admin/users/{id}/depots",
+     *      methods={"GET"},
+     *     defaults={
+     *            "__controller"="App\Controller\UserController::findTransactiondepot",
+     *           "__api_ressource_class"=User::class,
+     *           "__api_collection_operation_name"="find_Transaction_depot"
+     *         }
+     * )
+     */
+    public function findTransactiondepot($id, UserRepository $comptesRepository)
+    {
+        $test = $comptesRepository->find($id);
+      // dd($test);
+      //dd($test);
+        if ($test) {
+            return $this->json($test,200,[],["groups"=>"transactionunuser:read"]);
+        }else{
+            return $this->json(" Le nu numero de ce  Comtpt inexistant");
+        }
+    }
+
+    /**
+     * @Route (
+     *     name="findTransactionretrait",
+     *      path="/api/admin/users/{id}/retrais",
+     *      methods={"GET"},
+     *     defaults={
+     *            "__controller"="App\Controller\UserController::findTransactionretrait",
+     *           "__api_ressource_class"=User::class,
+     *           "__api_collection_operation_name"="find_Transaction_retrait"
+     *         }
+     * )
+     */
+    public function findTransactionretrait($id, UserRepository $comptesRepository)
+    {
+        $test = $comptesRepository->find($id);
+       
+        if ($test) {
+            return $this->json($test,200,[],["groups"=>"transactionretrait:read"]);
+        }else{
+            return $this->json(" Le nu numero de ce  Comtpt inexistant");
+        }
+    }
 }

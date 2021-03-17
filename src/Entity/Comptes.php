@@ -75,7 +75,7 @@ class Comptes
 
     /**
      * @ORM\OneToMany(targetEntity=Transactions::class, mappedBy="copmte",cascade={"persist"})
-     *  @Groups ({"numcompte:read","agence:read"})
+     *  @Groups ({"numcompte:read","agence:read","mestransactions:read"})
 
      */
     private $transactions;

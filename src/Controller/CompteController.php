@@ -26,7 +26,7 @@ class CompteController extends AbstractController
     /**
      * @Route (
      *     name="getCoompteByNumero",
-     *      path="/api/admin/comptes/{numero}",
+     *      path="/api/admin/comptes/{id}/transactions",
      *      methods={"GET"},
      *     defaults={
      *           "__controller"="App\Controller\CompteController::getCoompteByNumero",
@@ -35,12 +35,12 @@ class CompteController extends AbstractController
      *         }
      * )
      */
-    public function getCoompteByNumero($numero, ComptesRepository $comptesRepository)
+    public function getCoompteByNumero($id, ComptesRepository $comptesRepository)
     {
-        $test = $comptesRepository->findOneByNumero($numero);
-
+        $test = $comptesRepository->find($id);
+       //dd($test->getTransactions()[0])-;
         if ($test) {
-            return $this->json($test,200,[],["groups"=>"numcompte:read"]);
+            return $this->json($test,200,[],["groups"=>"mestransactions:read"]);
         }else{
             return $this->json(" Le nu numero de ce  Comtpt inexistant");
         }

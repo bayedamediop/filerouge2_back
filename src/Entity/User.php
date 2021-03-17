@@ -31,14 +31,16 @@ use Symfony\Component\Validator\Constraints as Assert;
  *              }
  *      },
  *     itemOperations={
- *           "get_user_by_id"={
- *                   "method"="GET",
- *                    "path" = "/admin/users/{id}",
- *                       "normalization_context"={"groups"={"userdepot:read"}}
- *
- *      },
+ *          
  *            "archiver_users"={
  *                      "route_name"="archiver",
+ *              },
+ * 
+ *            "find_Transaction_depot"={
+ *                  "route_name"="findTransactiondepot",
+ *              },
+ *  "find_Transaction_retrait"={
+ *                  "route_name"="findTransactionretrait",
  *              },
  *      "putUserId":{
  *           "method":"put",
@@ -70,7 +72,7 @@ class User implements UserInterface
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      * @Groups ({"depot:write"})
-     * @Groups ({"userdepot:read","agence:write"})
+     * @Groups ({"agence:write"})
      * @Groups ({"agence:write","user:read"})
      */
     private $id;
@@ -80,7 +82,7 @@ class User implements UserInterface
      * @Assert\NotBlank(message="L ' email doit etre unique")
      * * @Assert\Email(message = "The email '{{ value }}' is not a valid email.")
      * @Groups ({"user:read","depot:write"})
-     * @Groups ({"userdepot:read"})
+     * 
      */
     private $email;
 
@@ -94,13 +96,14 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups ({"userdepot:read","user:read","getOndepotUserCompt:read","numcompte:read","mesTransactions:read"})
+     * @Groups ({"userdepot:read","user:read","getOndepotUserCompt:read",
+     * "numcompte:read","transactionunuser:read","getOndepotUserCompt:read"})
      */
     private $nom;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups ({"userdepot:read","user:read","getOndepotUserCompt:read","numcompte:read","mesTransactions:read"})
+     * @Groups ({"userdepot:read","user:read","getOndepotUserCompt:read","numcompte:read","transactionunuser:read"})
      */
     private $prenom;
 
@@ -160,18 +163,23 @@ class User implements UserInterface
     private $user;
 
     /**
-     * @ORM\OneToMany(targetEntity=Transactions::class, mappedBy="userDepot")
-     * @Groups ({"user:read","mesTransactions:read"})
+     * @ORM\ManyToOne(targetEntity=UserTransaction::class, inversedBy="user")
      */
-    private $transactions;
+    private $userTransaction;
+
+    /**
+     * @ORM\OneToMany(targetEntity=UserTransaction::class, mappedBy="user")
+     */
+    private $userTransactions;
+
 
 
     public function __construct()
     {
         $this->depots = new ArrayCollection();
         $this->user = new ArrayCollection();
-        $this->transactions = new ArrayCollection();
         $this->agences = new ArrayCollection();
+        $this->userTransactions = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -445,34 +453,47 @@ class User implements UserInterface
         return $this;
     }
 
-    /**
-     * @return Collection|Transactions[]
-     */
-    public function getTransactions(): Collection
+    public function getUserTransaction(): ?UserTransaction
     {
-        return $this->transactions;
+        return $this->userTransaction;
     }
 
-    public function addTransaction(Transactions $transaction): self
+    public function setUserTransaction(?UserTransaction $userTransaction): self
     {
-        if (!$this->transactions->contains($transaction)) {
-            $this->transactions[] = $transaction;
-            $transaction->setUserDepot($this);
+        $this->userTransaction = $userTransaction;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|UserTransaction[]
+     */
+    public function getUserTransactions(): Collection
+    {
+        return $this->userTransactions;
+    }
+
+    public function addUserTransaction(UserTransaction $userTransaction): self
+    {
+        if (!$this->userTransactions->contains($userTransaction)) {
+            $this->userTransactions[] = $userTransaction;
+            $userTransaction->setUser($this);
         }
 
         return $this;
     }
 
-    public function removeTransaction(Transactions $transaction): self
+    public function removeUserTransaction(UserTransaction $userTransaction): self
     {
-        if ($this->transactions->removeElement($transaction)) {
+        if ($this->userTransactions->removeElement($userTransaction)) {
             // set the owning side to null (unless already changed)
-            if ($transaction->getUserDepot() === $this) {
-                $transaction->setUserDepot(null);
+            if ($userTransaction->getUser() === $this) {
+                $userTransaction->setUser(null);
             }
         }
 
         return $this;
     }
+
 
 }

@@ -33,6 +33,9 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *          "retiret_Transaction"={
  *                  "route_name"="retiret",
  *              },
+ * "find_Transaction_depot"={
+ *                  "route_name"="findTransactiondepot",
+ *              },
  *              "delet_Transaction"={
  *                  "route_name"="deletTransaction",
  *              },
@@ -54,28 +57,17 @@ class Transactions
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     * @Groups ({"transactionunuser:read","transactionretrait:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="float")
-     * @Groups ({"numcompte:read","agence:read","transactionById:read"})
+     * @Groups ({"numcompte:read","agence:read","transactionById:read","transactionunuser:read","transactionretrait:read"})
      * 
      */
     private $montant;
 
-    /**
-     * @ORM\Column(type="date",nullable=true)
-     *  @Groups ({"agence:read","transactionById:read","mesTransactions:read"})
-     */
-
-    private $dateDepot;
-
-    /**
-     * @ORM\Column(type="date",nullable=true)
-     *  @Groups ({"agence:read","transactionById:read","mesTransactions:read"})
-     */
-    private $dateRetrait;
 
     /**
      * @ORM\Column(type="float")
@@ -110,15 +102,9 @@ class Transactions
 
     /**
      * @ORM\ManyToOne(targetEntity=Comptes::class, inversedBy="transactions",cascade={"persist"})
-     * @Groups ({"user:read"})
+     * @Groups ({"user:read","userdepot:read"})
      */
     private $copmte;
-
-    /**
-     * @ORM\ManyToMany(targetEntity=User::class, inversedBy="transactions",cascade={"persist"})
-     * @Groups ({"numcompte:read"})
-     */
-    private $user;
 
     /**
      * @ORM\ManyToMany(targetEntity=Clirnts::class, inversedBy="transactions",cascade={"persist"})
@@ -129,13 +115,13 @@ class Transactions
 
     /**
      * @ORM\ManyToOne(targetEntity=Clirnts::class, inversedBy="transaction")
-     *  @Groups ({"transactionById:read","mesTransactions:read"})
+     *  @Groups ({"transactionById:read"})
      */
     private $clientEnvoie;
 
     /**
      * @ORM\ManyToOne(targetEntity=Clirnts::class, inversedBy="transaction")
-     *  @Groups ({"transactionById:read","mesTransactions:read"})
+     *  @Groups ({"transactionById:read"})
      */
     private $clientRecu;
 
@@ -145,24 +131,20 @@ class Transactions
     private $statut = true;
 
     /**
-     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="transactions")
-     *  @Groups ({"agence:read"})
-     * 
+     * @ORM\ManyToMany(targetEntity=User::class, mappedBy="transaction")
      */
-    private $userDepot;
+    private $users;
 
     /**
-     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="transactions")
-     *  @Groups ({"agence:read"})
+     * @ORM\OneToMany(targetEntity=UserTransaction::class, mappedBy="transaction")
      */
-    private $userRetrait;
+    private $userTransactions;
 
     public function __construct()
     {
-        $this->user = new ArrayCollection();
-        $this->client = new ArrayCollection();
+        $this->users = new ArrayCollection();
+        $this->userTransactions = new ArrayCollection();
     }
-
 
     public function getId(): ?int
     {
@@ -181,29 +163,6 @@ class Transactions
         return $this;
     }
 
-    public function getDateDepot(): ?\DateTimeInterface
-    {
-        return $this->dateDepot;
-    }
-
-    public function setDateDepot(\DateTimeInterface $dateDepot): self
-    {
-        $this->dateDepot = $dateDepot;
-
-        return $this;
-    }
-
-    public function getDateRetrait(): ?\DateTimeInterface
-    {
-        return $this->dateRetrait;
-    }
-
-    public function setDateRetrait(\DateTimeInterface $dateRetrait): self
-    {
-        $this->dateRetrait = $dateRetrait;
-
-        return $this;
-    }
 
     public function getComission(): ?float
     {
@@ -349,29 +308,38 @@ class Transactions
         return $this;
     }
 
-    public function getUserDepot(): ?User
+    /**
+     * @return Collection|UserTransaction[]
+     */
+    public function getUserTransactions(): Collection
     {
-        return $this->userDepot;
+        return $this->userTransactions;
     }
 
-    public function setUserDepot(?User $userDepot): self
+    public function addUserTransaction(UserTransaction $userTransaction): self
     {
-        $this->userDepot = $userDepot;
+        if (!$this->userTransactions->contains($userTransaction)) {
+            $this->userTransactions[] = $userTransaction;
+            $userTransaction->setTransaction($this);
+        }
 
         return $this;
     }
 
-    public function getUserRetrait(): ?User
+    public function removeUserTransaction(UserTransaction $userTransaction): self
     {
-        return $this->userRetrait;
-    }
-
-    public function setUserRetrait(?User $userRetrait): self
-    {
-        $this->userRetrait = $userRetrait;
+        if ($this->userTransactions->removeElement($userTransaction)) {
+            // set the owning side to null (unless already changed)
+            if ($userTransaction->getTransaction() === $this) {
+                $userTransaction->setTransaction(null);
+            }
+        }
 
         return $this;
     }
+
+
+
 
 
 }
