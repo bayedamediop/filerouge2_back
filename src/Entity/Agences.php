@@ -52,13 +52,13 @@ class Agences
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
-     * @Groups ({"getOndepotUserCompt:read"})
+     * @Groups ({"getOndepotUserCompt:read","user:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="integer")
-     *@Groups ({"getOndepotUserCompt:read","agence:read","agence:write"})
+     *@Groups ({"getOndepotUserCompt:read","agence:read","agence:write","user:read"})
      */
     private $numAgence;
 
@@ -86,8 +86,8 @@ class Agences
     private $userCreat;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Comptes::class, inversedBy="agences")
-     * @Groups ({"agence:read"})
+     * @ORM\ManyToOne(targetEntity=Comptes::class, inversedBy="agences",cascade={"persist"})
+     * @Groups ({"agence:read","user:read"})
      */
     private $compte;
     public function __construct()

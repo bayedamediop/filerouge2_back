@@ -148,8 +148,9 @@ class TransactionController extends AbstractController
 //                    $entityManager->persist($newtransac);
                     //}
 //                }
+                    $today = date("m/d/y");
                     $newtransationuser = new UserTransaction();
-                    $newtransationuser->setDate(new \DateTime);
+                    $newtransationuser->setDate(m/d/y);
                     $newtransationuser->setType("depot");
 
                     $objet->addUserTransaction($newtransationuser);
@@ -303,6 +304,7 @@ class TransactionController extends AbstractController
 
                     $objet = ($userRepository->find((int)$userConnecte->getId()));
                    // dd($objet);
+                    //$today = date("m/d/y");
                     $newtransationuser = new UserTransaction();
                     $newtransationuser->setDate(new \DateTime);
                     $newtransationuser->setType("retrait");

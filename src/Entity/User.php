@@ -28,10 +28,16 @@ use Symfony\Component\Validator\Constraints as Assert;
  *                  },
  *          "add_users"={
  *                  "route_name"="addUser",
- *              }
+ *              },
+ *
  *      },
  *     itemOperations={
- *          
+ *          "mest_ransactions"={
+ *                  "method" = "GET",
+ *                  "path" = "/admin/user/{id}",
+ *                 "normalization_context"={"groups"={"transactions:read"}}
+
+ *              },
  *            "archiver_users"={
  *                      "route_name"="archiver",
  *              },
@@ -48,12 +54,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *              "access_control"="(is_granted('ROLE_ADMIN') )",
  *              "deserialize"= false,
  *          },
- * "mesTransactions":{
- *           "method":"GET",
- *          "path":"/admin/users/{id}/transaction",
- *             "normalization_context"={"groups"={"mesTransactions:read"}}
-
- *          },
+ *
  *         
  * },
  * )
@@ -71,8 +72,6 @@ class User implements UserInterface
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
-     * @Groups ({"depot:write"})
-     * @Groups ({"agence:write"})
      * @Groups ({"agence:write","user:read"})
      */
     private $id;
@@ -152,7 +151,7 @@ class User implements UserInterface
 
     /**
      * @ORM\OneToMany(targetEntity=Agences::class, mappedBy="user",cascade={"persist"})
-     * @Groups ({"userdepot:read"})
+     * @Groups ({"userdepot:read","user:read"})
      */
     private $agences;
 
@@ -164,11 +163,13 @@ class User implements UserInterface
 
     /**
      * @ORM\ManyToOne(targetEntity=UserTransaction::class, inversedBy="user")
+     *
      */
     private $userTransaction;
 
     /**
      * @ORM\OneToMany(targetEntity=UserTransaction::class, mappedBy="user")
+     *  @Groups ({"transactions:read"})
      */
     private $userTransactions;
 

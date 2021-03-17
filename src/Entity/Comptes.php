@@ -82,7 +82,7 @@ class Comptes
 
     /**
      * @ORM\OneToMany(targetEntity=Agences::class, mappedBy="compte",cascade={"persist"})
-     *  @Groups ({"getOndepotUserCompt:read","user:read"})
+     *  @Groups ({"getOndepotUserCompt:read"})
      * 
      * 
      */
