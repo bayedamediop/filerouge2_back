@@ -7,6 +7,7 @@ use App\Entity\Clirnts;
 use App\Entity\Comptes;
 use App\Entity\Transactions;
 use App\Entity\TypeTransaction;
+use App\Entity\UserTransaction;
 use App\Repository\UserRepository;
 use App\Repository\ClirntsRepository;
 use App\Repository\ComptesRepository;
@@ -97,9 +98,10 @@ class TransactionController extends AbstractController
         //dd($transaction);
         $slode = $this->getDoctrine()->getRepository(Comptes::class);
         $all = $slode->findAll();
-        //dd($userConnecte->getAgences()[0])->getId();
+        //dd($userConnecte->getAgences()[0]-);
+
         $compt = ($comptesRepository->find((int)$userConnecte->getAgences()[0]->getCompte()->getId()));
-        //dd($compt);
+       // dd($compt);
        // if ($transaction['compte']) {
             //$cmop = $transaction['compte'];
 
@@ -116,7 +118,7 @@ class TransactionController extends AbstractController
 
                 }else{
                     $newtransac = new Transactions();
-                    $newtransac->setDateDepot($date);
+//                    $newtransac->setDateDepot($date);
                     // $Transaction->setUserTransaction($users);//le user qui a fais le depot
                     $newtransac->setComission($fr);
                     // dd($fr);
@@ -138,14 +140,22 @@ class TransactionController extends AbstractController
                 
                  //effectation de user qui fait la deposition de la transaction
                 
-                 if ($userRepository->find((int)$userConnecte->getId())) {
+//                 if ($userRepository->find((int)$userConnecte->getId())) {
 
                     $objet = ($userRepository->find((int)$userConnecte->getId()));
 //                   // dd($objet);
 //                    $newtransac->setUserDepot($objet);
 //                    $entityManager->persist($newtransac);
                     //}
-                }
+//                }
+                    $newtransationuser = new UserTransaction();
+                    $newtransationuser->setDate(new \DateTime);
+                    $newtransationuser->setType("depot");
+
+                    $objet->addUserTransaction($newtransationuser);
+                    $newtransac->addUserTransaction($newtransationuser);
+                    $entityManager->persist($newtransationuser);
+
                     $newclient = $serializer->denormalize($transaction['client'], Clirnts::class);
                     $newclient1 = $serializer->denormalize($transaction['client_recu'], Clirnts::class);
                     $entityManager->persist($newclient);
@@ -153,25 +163,7 @@ class TransactionController extends AbstractController
                     $newtransac->setClientEnvoie($newclient);
                     $newtransac->setClientRecu($newclient1);
               
-                    // for ($i = 0; $i < count($transaction['client']); $i++) {
-                    //     //ccreation du client a envoie
-                    //     $newclient = new Clirnts();
-                    //     $newclient->setNomComplet($transaction['client'][$i]['nomComplet']);
-                    //     $newclient->setPhone($transaction['client'][$i]['phone']);
-                    //     $newclient->setCni($transaction['client'][$i]['cni']);
-                    //     $newtransac->setClientEnvoie($newclient);
-                    //     $entityManager->persist($newclient);
-                    // }
-                    // for ($i = 0; $i < count($transaction['client_recu']); $i++) {
-                    //     //ccreation du client a envoie
-                    //     $newclient = new Clirnts();
-                    //     $newclient->setNomComplet($transaction['client_recu'][$i]['nomComplet']);
-                    //     $newclient->setPhone($transaction['client_recu'][$i]['phone']);
-                    //    // $newclient->setCni($transaction['client'][$i]['cni']);
-                    //     $newtransac->setClientRecu($newclient);
-                    //     $entityManager->persist($newclient);
-                    // }
-                    // dd($mypart);
+
                     //mis a jour Du Compte
 
                     $entityManager->persist($newclient);
@@ -254,7 +246,7 @@ class TransactionController extends AbstractController
         $transation = $transactionsRepository->findTransaction($code);
         if ($transation) {
 
-            if ($transation->getDateRetrait() !== null) {
+            if ($transation->getStatut() !== true) {
                 return $this->json('cette transaction est deja retiret',400);
             } else {
                 return $this->json($transation,200);
@@ -297,13 +289,13 @@ class TransactionController extends AbstractController
         if ($transation) {
             $fr = $this->frais($transation->getMontant());
             $partRet = (20 * $fr) / 100;
-            if ($transation->getDateRetrait() !== null) {
+            if ($transation->getStatut() == false) {
                 $data = [
                     'status' => 200,
                     'message' => 'Cete transation est est deja retire!!!! '
                 ];
             } else {
-                $transation->setDateRetrait(new \DateTime());
+                $transation->setStatut(false);
                 $this->manage->persist($transation);
                 // user qui retire de l' argen
                // dd($userConnecte->getId());
@@ -311,8 +303,14 @@ class TransactionController extends AbstractController
 
                     $objet = ($userRepository->find((int)$userConnecte->getId()));
                    // dd($objet);
-                    $transation->setUserRetrait($objet);
+                    $newtransationuser = new UserTransaction();
+                    $newtransationuser->setDate(new \DateTime);
+                    $newtransationuser->setType("retrait");
+
+                    $objet->addUserTransaction($newtransationuser);
+                    $transation->addUserTransaction($newtransationuser);
                     $manage = $this->getDoctrine()->getManager();
+                    $manage->persist($newtransationuser);
                     $manage->persist($transation);
                     //}
                 }
@@ -332,22 +330,10 @@ class TransactionController extends AbstractController
                 $doonneClient = json_decode($request->getContent(),'json');
              //dd($doonneClient);
                $newclient = $serializer->denormalize($doonneClient, Clirnts::class);
-               //$newclient1 = $serializer->denormalize($transaction['client_recu'], Clirnts::class);
-               //$entityManager->persist($newclient);
-              // $entityManager->persist($newclient1);
+
                $manage = $this->getDoctrine()->getManager();
                   $manage->persist($newclient);
-               //$newtransac->setClientEnvoie($newclient);
-              // $newtransac->setClientRecu($newclient1);
-              //  if ($doonneClient['client']) {
-                //   for ($i=0; $i < count($doonneClient['client']); $i++) { 
-                //    // dd();
-                //     $objet = $transation->getClientRecu();
-                //     $objet->setCni($doonneClient['client'][$i]['cni']);
-                //   }
-                   
-                           
-              //  }
+
                 $data = [
                     'status' => 200,
                     'message' => 'Vous Avez Efeectue Une Operation de retire '

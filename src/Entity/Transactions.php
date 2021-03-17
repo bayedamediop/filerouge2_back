@@ -63,7 +63,8 @@ class Transactions
 
     /**
      * @ORM\Column(type="float")
-     * @Groups ({"numcompte:read","agence:read","transactionById:read","transactionunuser:read","transactionretrait:read"})
+     * @Groups ({"numcompte:read","agence:read","transactionById:read","transactionunuser:read",
+     *     "transactionretrait:read","mestransactions:read"})
      * 
      */
     private $montant;
