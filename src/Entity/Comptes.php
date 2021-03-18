@@ -13,10 +13,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 /**
  * @ORM\Entity(repositoryClass=ComptesRepository::class)
  * @ApiResource(
- *           attributes={
- *         "security" = "(is_granted('ROLE_ADMIN') )",
- *      "security_message" = " OBBB ,vous n'avez pas accès a cette resource"
- *      },
+ *
  *      collectionOperations={
  *          "get"={
  *                  "method" = "GET",
@@ -37,7 +34,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *      },
  *     "get"={
  *                  "method" = "GET",
- *                  "path" = "/admin/comptes/{id}",
+ *                  "path" = "/admin/compte/{id}",
  *                  "normalization_context"={"groups"={"cmopte:read"}}
  *                  },
  *      },
@@ -75,7 +72,7 @@ class Comptes
 
     /**
      * @ORM\OneToMany(targetEntity=Transactions::class, mappedBy="copmte",cascade={"persist"})
-     *  @Groups ({"numcompte:read","agence:read","mestransactions:read"})
+     *  @Groups ({"numcompte:read","agence:read","mestransactions:read","cmopte:read"})
 
      */
     private $transactions;

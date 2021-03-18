@@ -64,7 +64,7 @@ class Transactions
     /**
      * @ORM\Column(type="float")
      * @Groups ({"numcompte:read","agence:read","transactionById:read","transactionunuser:read",
-     *     "transactionretrait:read","transactions:read"})
+     *     "transactionretrait:read","transactions:read","cmopte:read"})
      *
      */
     private $montant;
@@ -88,11 +88,13 @@ class Transactions
 
     /**
      * @ORM\Column(type="float",nullable=true)
+     * @Groups ({"cmopte:read"})
      */
     private $fraisEnvoie;
 
     /**
      * @ORM\Column(type="float",nullable=true)
+     * @Groups ({"cmopte:read"})
      */
     private $fraisRetrait;
 
@@ -138,6 +140,7 @@ class Transactions
 
     /**
      * @ORM\OneToMany(targetEntity=UserTransaction::class, mappedBy="transaction")
+     * @Groups ({"cmopte:read"})
      */
     private $userTransactions;
 

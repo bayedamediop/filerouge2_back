@@ -38,6 +38,12 @@ use Symfony\Component\Validator\Constraints as Assert;
  *                 "normalization_context"={"groups"={"transactions:read"}}
 
  *              },
+ *     "getuserbyid"={
+ *                  "method" = "GET",
+ *                  "path" = "/admin/users/{id}",
+ *                 "normalization_context"={"groups"={"userbyid:read"}}
+
+ *              },
  *            "archiver_users"={
  *                      "route_name"="archiver",
  *              },
@@ -51,7 +57,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *      "putUserId":{
  *           "method":"put",
  *          "path":"/admin/users/{id}",
- *              "access_control"="(is_granted('ROLE_ADMIN') )",
+ *
  *              "deserialize"= false,
  *          },
  *
@@ -80,7 +86,7 @@ class User implements UserInterface
      * @ORM\Column(type="string", length=180, unique=true)
      * @Assert\NotBlank(message="L ' email doit etre unique")
      * * @Assert\Email(message = "The email '{{ value }}' is not a valid email.")
-     * @Groups ({"user:read","depot:write"})
+     * @Groups ({"user:read","depot:write","userbyid:read"})
      * 
      */
     private $email;
@@ -90,49 +96,54 @@ class User implements UserInterface
     /**
      * @var string The hashed password
      * @ORM\Column(type="string")
+     * @Groups ({"userbyid:read"})
+     * @)
      */
     private $password;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Groups ({"userdepot:read","user:read","getOndepotUserCompt:read",
-     * "numcompte:read","transactionunuser:read","getOndepotUserCompt:read"})
+     * "numcompte:read","transactionunuser:read","getOndepotUserCompt:read",
+     *     "cmopte:read","userbyid:read"})
      */
     private $nom;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups ({"userdepot:read","user:read","getOndepotUserCompt:read","numcompte:read","transactionunuser:read"})
+     * @Groups ({"userdepot:read","user:read","getOndepotUserCompt:read",
+     *     "numcompte:read","transactionunuser:read","cmopte:read","userbyid:read"})
      */
     private $prenom;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups ({"userdepot:read","getOndepotUserCompt:read","user:read"})
+     * @Groups ({"userdepot:read","getOndepotUserCompt:read","user:read","userbyid:read"})
      */
     private $phone;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups ({"userdepot:read"})
+     * @Groups ({"userdepot:read","userbyid:read"})
      */
     private $cni;
 
     /**
      * @ORM\Column(type="blob", nullable=true)
-     *  @Groups ({"user:read"})
+     *  @Groups ({"user:read","userbyid:read"})
      */
     private $avatar;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Groups ({"userdepot:read","getOndepotUserCompt:read"})
-     *  @Groups ({"user:read"})
+     *  @Groups ({"user:read","userbyid:read"})
      */
     private $adresse;
 
     /**
      * @ORM\Column(type="boolean")
+     *
      */
     private $archivage = 0;
 

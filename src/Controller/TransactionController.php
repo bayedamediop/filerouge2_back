@@ -84,7 +84,7 @@ class TransactionController extends AbstractController
         $date = new \DateTime('now');
         //$code = $gneneCode . date_format($date, 'YmdHi');
         //dd($code);
-    
+
 
         //appele fonction frais
 
@@ -137,9 +137,9 @@ class TransactionController extends AbstractController
                             //dd($so);
                             $objet->addTransaction($newtransac);
                         $entityManager->persist($objet);
-                
+
                  //effectation de user qui fait la deposition de la transaction
-                
+
 //                 if ($userRepository->find((int)$userConnecte->getId())) {
 
                     $objet = ($userRepository->find((int)$userConnecte->getId()));
@@ -150,7 +150,7 @@ class TransactionController extends AbstractController
 //                }
                     $today = date("m/d/y");
                     $newtransationuser = new UserTransaction();
-                    $newtransationuser->setDate(m/d/y);
+                    $newtransationuser->setDate(new \DateTime());
                     $newtransationuser->setType("depot");
 
                     $objet->addUserTransaction($newtransationuser);
@@ -163,7 +163,7 @@ class TransactionController extends AbstractController
                     $entityManager->persist($newclient1);
                     $newtransac->setClientEnvoie($newclient);
                     $newtransac->setClientRecu($newclient1);
-              
+
 
                     //mis a jour Du Compte
 
@@ -184,28 +184,6 @@ class TransactionController extends AbstractController
         return new JsonResponse($data, 200);
 
     }
-    // ___________________________calcule frais__________________________
-    
- // ___________________________calcule frais__________________________
-
-    /**
-     * @Route (
-     *     name="calculerfrais",
-     *      path="/api/admin/frais",
-     *      methods={"GET"},
-     *     defaults={
-     *           "__controller"="App\Controller\TransactionController::calculerfrais",
-     *           "__api_ressource_class"=Transactions::class,
-     *           "__api_collection_operation_name"="calculer_frais"
-     *         }
-     * )
-     */
-    public function calculerfrais( Request $request)
-    {
-        $objet = json_decode($request->getContent(), 'json');
-        
-        return $this->json($this->frais($objet['montant']),200);
-    }
 
 
 
@@ -218,12 +196,45 @@ class TransactionController extends AbstractController
         foreach ($all as $val) {
 
             if ($val->getBornInf() <= $montant && $val->getBornsupp() >= $montant) {
-                return $val->getFrais();
+               // dd($val->getFrais());
+                return  $val->getFrais();
             }
         }
+
+    }
+    // ___________________________calcule frais__________________________
+
+    // ___________________________calcule frais__________________________
+
+    /**
+     * @Route (
+     *     name="calculerfrais",
+     *      path="/api/admin/frais",
+     *      methods={"POST"},
+     *     defaults={
+     *
+     *           "__api_collection_operation_name"="calculer_frais"
+     *         }
+     * )
+     */
+    public function calculerfrais(Request $request) {
+        $montantPostman =  json_decode($request->getContent());
+        //dd($montantPostman->montant);
+        if($montantPostman->montant < 0) {
+            return $this->json("le montant ne peut pas être négatif!", 400);
+        } else if(!is_numeric($montantPostman->montant)) {
+            return $this->json("Vous devez founir un nombre valide, non une chaine de caractère!", 400);
+        } else if($montantPostman->montant > 2000000) {
+            $frais = ((int)($montantPostman->montant)) * 0.02;
+            return $this->json($frais, 200);
+        }
+        $frais  = $this->frais((int)($montantPostman->montant));
+        //$array = json_decode($frais, true);
+        return $this->json($frais, 200);
     }
 
-     //_________________ recherche un transaction via code de transaction_______________________________
+
+    //_________________ recherche un transaction via code de transaction_______________________________
 
     /**
      * @Route (
@@ -255,7 +266,7 @@ class TransactionController extends AbstractController
         }else {
             return $this->json('ce code de transaction n est pas correcte !!!!',400);
          }
-        
+
     }
 
     //_________________ recupre un transaction via code de transaction_______________________________
@@ -282,9 +293,9 @@ class TransactionController extends AbstractController
         $transation = $transactionsRepository->findTransaction($code);
        //dd($transation->getClientRecu()->getCni());
         //dd($transation);
-           
 
-       
+
+
         $userConnecte = $token->getToken()->getUser();
         //dd($userConnecte);
         if ($transation) {
@@ -321,11 +332,11 @@ class TransactionController extends AbstractController
                  $solde = $objet->setSolde($objet->getSolde() + $transation->getMontant() +$partRet);
                   //dd($so);
                   $solde->addTransaction($transation);
-            
+
                 $manage = $this->getDoctrine()->getManager();
                 $manage->persist($solde);
                 $doonne = json_decode($request->getContent());
-                
+
                     $manage = $this->getDoctrine()->getManager();
                     $manage->persist($transation);
               //  }
@@ -388,7 +399,7 @@ class TransactionController extends AbstractController
     //             $transation->setFraisRetrait(0) ;
     //             $transation->setFraisSysteme(0.0) ;
     //              $manage->persist($transation);
-                
+
     //         }
     //         $manage->flush();
     //         $data = [
