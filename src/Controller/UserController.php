@@ -1,8 +1,10 @@
 <?php
 
 namespace App\Controller;
+use App\Entity\Agences;
 use App\Entity\User;
 use App\Entity\Profils;
+use App\Repository\AgencesRepository;
 use App\Service\UserService;
 use App\Repository\UserRepository;
 use App\Repository\ProfilsRepository;
@@ -51,7 +53,7 @@ class UserController extends AbstractController
      * }
      * )
      */
-    public function addUser(Request $request)
+    public function addUser(Request $request, AgencesRepository $agencesRepository,SerializerInterface $serializer)
 
     { //all data
         $user = $request->request->all() ;
@@ -74,6 +76,11 @@ class UserController extends AbstractController
 
         $users->setPassword($this->encoder->encodePassword($users,$password));
 
+//        $addAgence = $serializer->denormalize($agencesRepository['agence'], Agences::class);
+//
+//        $entityManager->persist($newclient);
+//        $entityManager->persist($newclient1);
+//        $newtransac->setClientEnvoie($newclient);
         //$users->setProfile($this->profileRepository->findOneBy(['libelle'=>$profil])) ;
 
 //         $errors = $validator->validate($users);

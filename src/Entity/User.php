@@ -160,11 +160,7 @@ class User implements UserInterface
      */
     private $depots;
 
-    /**
-     * @ORM\OneToMany(targetEntity=Agences::class, mappedBy="user",cascade={"persist"})
-     * @Groups ({"userdepot:read","user:read"})
-     */
-    private $agences;
+
 
 
     /**
@@ -184,13 +180,19 @@ class User implements UserInterface
      */
     private $userTransactions;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=Agences::class, inversedBy="users")
+     * @Groups ({"user:read"})
+     */
+    private $agence;
+
 
 
     public function __construct()
     {
         $this->depots = new ArrayCollection();
         $this->user = new ArrayCollection();
-        $this->agences = new ArrayCollection();
+        $this->agence = new ArrayCollection();
         $this->userTransactions = new ArrayCollection();
     }
 
@@ -405,35 +407,6 @@ class User implements UserInterface
         return $this;
     }
 
-    /**
-     * @return Collection|Agences[]
-     */
-    public function getAgences(): Collection
-    {
-        return $this->agences;
-    }
-
-    public function addAgence(Agences $agence): self
-    {
-        if (!$this->agences->contains($agence)) {
-            $this->agences[] = $agence;
-            $agence->setUser($this);
-        }
-
-        return $this;
-    }
-
-    public function removeAgence(Agences $agence): self
-    {
-        if ($this->agences->removeElement($agence)) {
-            // set the owning side to null (unless already changed)
-            if ($agence->getUser() === $this) {
-                $agence->setUser(null);
-            }
-        }
-
-        return $this;
-    }
 
     /**
      * @return Collection|Depots[]
@@ -503,6 +476,18 @@ class User implements UserInterface
                 $userTransaction->setUser(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getAgence(): ?Agences
+    {
+        return $this->agence;
+    }
+
+    public function setAgence(?Agences $agence): self
+    {
+        $this->agence = $agence;
 
         return $this;
     }

@@ -11,7 +11,10 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=ProfilsRepository::class)
- * @ApiResource()
+ * @ApiResource(
+ *
+ *
+ * )
  */
 class Profils
 {
@@ -19,12 +22,13 @@ class Profils
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     * @Groups ({"userdepot:read","profil:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups ({"userdepot:read"})
+     * @Groups ({"userdepot:read","profil:read"})
      */
     private $libelle;
 

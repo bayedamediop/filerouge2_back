@@ -36,9 +36,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  * "find_Transaction_depot"={
  *                  "route_name"="findTransactiondepot",
  *              },
- *              "delet_Transaction"={
- *                  "route_name"="deletTransaction",
- *              },
+ *
  *     "get"={
  *                  "method" = "GET",
  *                  "path" = "/admin/comptes/{id}",

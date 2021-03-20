@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\AgencesRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
@@ -23,8 +25,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *      },
  *          "get"={
  *                  "method" = "GET",
- *                  "path" = "/admin/users",
- *                  "normalization_context"={"groups"={"user:read"}}
+ *                  "path" = "/admin/agences",
+ *                  "normalization_context"={"groups"={"agences:read"}}
  *                  },
  *          "add_agence"={
  *                  "route_name"="creatAgence",
@@ -52,13 +54,13 @@ class Agences
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
-     * @Groups ({"getOndepotUserCompt:read","user:read"})
+     * @Groups ({"getOndepotUserCompt:read","agences:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="integer")
-     *@Groups ({"getOndepotUserCompt:read","agence:read","agence:write","user:read"})
+     *@Groups ({"getOndepotUserCompt:read","agence:read","agence:write","agences:read"})
      */
     private $numAgence;
 
@@ -73,11 +75,6 @@ class Agences
      */
     private $statut = false;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="agences",cascade={"persist"})
-     *  @Groups ({"agence:write","agence:read"})
-     */
-    private $user;
 
     /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="agences",cascade={"persist"})
@@ -90,10 +87,22 @@ class Agences
      * @Groups ({"agence:read","user:read"})
      */
     private $compte;
+
+    /**
+     * @ORM\OneToMany(targetEntity=User::class, mappedBy="agence")
+     */
+    private $users;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     *  @Groups ({"agence:read","user:read"})
+     */
+    private $nom;
     public function __construct()
     {
        $this->numAgence = rand(9,1000000000);
       // $this->getUser()->getId();
+      $this->users = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -137,17 +146,9 @@ class Agences
         return $this;
     }
 
-    public function getUser(): ?User
-    {
-        return $this->user;
-    }
 
-    public function setUser(?User $user): self
-    {
-        $this->user = $user;
 
-        return $this;
-    }
+
 
     public function getUserCreat(): ?User
     {
@@ -169,6 +170,48 @@ class Agences
     public function setCompte(?Comptes $compte): self
     {
         $this->compte = $compte;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|User[]
+     */
+    public function getUsers(): Collection
+    {
+        return $this->users;
+    }
+
+    public function addUser(User $user): self
+    {
+        if (!$this->users->contains($user)) {
+            $this->users[] = $user;
+            $user->setAgence($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUser(User $user): self
+    {
+        if ($this->users->removeElement($user)) {
+            // set the owning side to null (unless already changed)
+            if ($user->getAgence() === $this) {
+                $user->setAgence(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getNom(): ?string
+    {
+        return $this->nom;
+    }
+
+    public function setNom(?string $nom): self
+    {
+        $this->nom = $nom;
 
         return $this;
     }

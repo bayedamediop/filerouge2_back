@@ -70,23 +70,13 @@ class TransactionController extends AbstractController
                                  ): JsonResponse
     {
         //$userConnecte = $this->getUser();
-        $userConnecte = $token->getToken()->getUser();
-        //$userId = $this->get('security.context')->getToken()->getUser()->getId();
-        //dd($userConnect);
+        $userConnecte = $this->getUser();
 
-       //dd($userConnecte->getTransactions()); die;
-        // $transaction =$serializer->deserialize($request->getContent(), Transactions::class, 'json');
         $transaction = json_decode($request->getContent(), 'json');
-        //dd($transaction);
-        //dd($transaction['nomComplet']);
+
         $code = rand(4,1000000000);
         // var_dump($gneneCode);die();
         $date = new \DateTime('now');
-        //$code = $gneneCode . date_format($date, 'YmdHi');
-        //dd($code);
-
-
-        //appele fonction frais
 
         $fr = $this->frais($transaction['montant']);
         //dd($fr);
@@ -98,9 +88,9 @@ class TransactionController extends AbstractController
         //dd($transaction);
         $slode = $this->getDoctrine()->getRepository(Comptes::class);
         $all = $slode->findAll();
-        //dd($userConnecte->getAgences()[0]-);
+        //dd($userConnecte->getAgences()[0]);
 
-        $compt = ($comptesRepository->find((int)$userConnecte->getAgences()[0]->getCompte()->getId()));
+        $compt = ($comptesRepository->find((int)$userConnecte->getAgence()->getCompte()->getId()));
        // dd($compt);
        // if ($transaction['compte']) {
             //$cmop = $transaction['compte'];
@@ -131,7 +121,7 @@ class TransactionController extends AbstractController
                     $newtransac->setMontant($transaction['montant']);
                     $entityManager->persist($newtransac);
 
-                            $objet = ($comptesRepository->find((int)$userConnecte->getAgences()[0]->getCompte()->getId()));
+                            $objet = ($comptesRepository->find((int)$userConnecte->getAgence()->getCompte()->getId()));
                           // dd($objet->getSolde());
                            $objet->setSolde($objet->getSolde() - $transaction['montant'] + $partDep);
                             //dd($so);
@@ -327,7 +317,7 @@ class TransactionController extends AbstractController
                     $manage->persist($transation);
                     //}
                 }
-                $objet = ($comptesRepository->find((int)$userConnecte->getAgences()[0]->getCompte()->getId()));
+                $objet = ($comptesRepository->find((int)$userConnecte->getAgence()->getCompte()->getId()));
                 //dd($objet);
                  $solde = $objet->setSolde($objet->getSolde() + $transation->getMontant() +$partRet);
                   //dd($so);
@@ -367,7 +357,7 @@ class TransactionController extends AbstractController
     /**
      * @Route (
      *     name="deletTransaction",
-     *      path="/api/admin/transactions/{code}",
+     *      path="/api/admin/transaction/{code}",
      *      methods={"GET"},
      *     defaults={
      *           "__controller"="App\Controller\TransactionController::deletTransaction",
@@ -376,55 +366,57 @@ class TransactionController extends AbstractController
      *         }
      * )
      */
-    // public function deletTransaction(Request $request, $code,  TransactionsRepository $transactionsRepository,
-    //                 EntityManagerInterface $manage, ComptesRepository $comptesRepository){
-    //     $transation = $transactionsRepository->findTransaction($code);
-    //     //dd($transaction);
-    //     $usedepot=$transation->getUserDepot()->getId();
-    //     dd($userdepot);
-    //     $userConnect=$this->getUser()->getId();
-    //    // dd($transation->getDateRetrait());
-    //      //dd($transation->getCopmte()->getSolde());
+     public function deletTransaction(Request $request, $code,  TransactionsRepository $transactionsRepository,
+                     EntityManagerInterface $manage,TokenStorageInterface $storage,ComptesRepository $comptesRepository){
+         $transation = $transactionsRepository->findTransaction($code);
+         //dd($transation);
+        // $usedepot=$transation->getUserDepot()->getId();
+         $userConnecte = $storage->getToken()->getUser();
+         //dd($userConnecte);
+        // dd($transation->getDateRetrait());
+          $userDepot=($userConnecte->getUserTransactions()[0]->getUser()->getId());
+        // dd($userConnecte->getAgence()->getCompte()->getSolde());
+        //$ $transation->getMontant()[0];
+         //dd($transation->getMontant());
+         if ($userConnecte->getId() === $userDepot ) {
+             if ($transation->getStatut() !== true){
+               // dd( $transation->setFraisRetrait());
+                 return $this->json("Cette code de Transaction est deja retiret!!!");
+             }else{
+                 $objet = ($comptesRepository->find((int)$userConnecte->getAgence()->getCompte()->getId()));
+                 //dd($objet);
+                 $objet->setSolde($objet->getSolde() - $transation->getMontant() );
+                 $transation->setFraisEtat(0.0) ;
+                 $transation->setStatut(false) ;
+                 $transation->setFraisRetrait(0) ;
+                 $transation->setFraisSysteme(0.0) ;
+                  $manage->persist($transation);
 
-    //    //$ $transation->getMontant()[0];
-    //     //dd($transation->getMontant());
-    //     if ($userConnect === $usedepot ) {
-    //         if ($transation->getDateRetrait() !== null){
-    //           // dd( $transation->setFraisRetrait());
-    //             return $this->json("Cette code de Transaction est deja retiret!!!");
-    //         }else{
-    //             $transation->getCopmte()->setSolde($transation->getCopmte()->getSolde()-$transation->getMontant());
-    //             $transation->setFraisEtat(0.0) ;
-    //             $transation->setDateRetrait(new \DateTime()) ;
-    //             $transation->setFraisRetrait(0) ;
-    //             $transation->setFraisSysteme(0.0) ;
-    //              $manage->persist($transation);
+             }
+             $manage->flush();
+             $data = [
+                 'status' => 200,
+                 'message' => 'Cete transation est annuler avec success!!!! '
+             ];
+         }else {
+             $data = [
+                 'status' => 200,
+                 'message' => 'Desole vous ne pouvez pas cette transactio!!! '
+             ];
+         }
+     //    $delete=($transation->getMontantDepot());
+     //       $solde= ($transation->getCompte()->getSolde());
+     //       $result= $transation->getCompte()->setSolde($solde - $delete) ;
+     //        $manage->persist($result);
+     //        $transation->getCompte()->removeDepot($transation);
+     //      $transation->getUsers()->removeDepot($transation);
+     //     // $transation->removeDepot($transation);
+     //        $manage->remove($transation);
 
-    //         }
-    //         $manage->flush();
-    //         $data = [
-    //             'status' => 200,
-    //             'message' => 'Cete transation est annuler avec success!!!! '
-    //         ];
-    //     }else {
-    //         $data = [
-    //             'status' => 200,
-    //             'message' => 'Desole vous ne pouvez pas cette transactio!!! '
-    //         ];
-    //     }
-    // //    $delete=($transation->getMontantDepot());
-    // //       $solde= ($transation->getCompte()->getSolde());
-    // //       $result= $transation->getCompte()->setSolde($solde - $delete) ;
-    // //        $manage->persist($result);
-    // //        $transation->getCompte()->removeDepot($transation);
-    // //      $transation->getUsers()->removeDepot($transation);
-    // //     // $transation->removeDepot($transation);
-    // //        $manage->remove($transation);
-
-    // //        $manage->flush();
-    //     // dd($transation);
-    //     return new JsonResponse($data, 200);
-    // }
+     //        $manage->flush();
+         // dd($transation);
+         return new JsonResponse($data, 200);
+     }
 
     //_________________ les  transactions d un compte_______________________________
 
